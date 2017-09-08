@@ -16,8 +16,10 @@ func main() {
 			defer listener.Close()
 			for {
 				if sock, err := listener.Accept(); err == nil {
-					defer sock.Close()
-					io.Copy(os.Stdout, sock)
+					func(sock net.Conn) {
+						defer sock.Close()
+						io.Copy(os.Stdout, sock)
+					}(sock)
 				}
 			}
 		} else {
