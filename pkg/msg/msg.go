@@ -1,6 +1,6 @@
 package msg
 
-type MigrateMachine struct {
+type MigrateParams struct {
 	SourceHost       string          `json:"source_host,omitempty"`
 	TargetHost       string          `json:"target_target,omitempty"`
 	ContainerName    string          `json:"container_name,omitempty"`
@@ -15,6 +15,6 @@ type MigrateMachine struct {
 }
 
 type Result struct {
-	Success bool   `json:"success,omitempty"`
-	Msg     string `json:"msg,omitempty"`
+	Success bool   `json:"success"`
+	Msg     string `json:"msg"`
 }
