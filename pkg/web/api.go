@@ -38,7 +38,5 @@ func MigrateMachine(request *http.Request) (interface{}, error) {
 		return nil, err
 	}
 
-	result := data.(map[string]interface{})
-	return result, nil
-
+	return data, nil
 }
