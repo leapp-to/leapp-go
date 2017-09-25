@@ -34,7 +34,7 @@ func MigrateMachine(decoder *json.Decoder) (map[string]interface{}, error) {
 	output_mock := []byte("{\"foo\": \"bar\"}")
 	// return result to client
 
-	if err := json.Unmarshal(output_mock, &data); err != nil {
+	if json.Unmarshal(output_mock, &data) != nil {
 		return nil, errors.New("Invalid json output from executor")
 	}
 
