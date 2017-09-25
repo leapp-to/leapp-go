@@ -2,43 +2,45 @@ package web
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/leapp-to/leapp-go/pkg/msg"
 )
 
-func MigrateHandler(w http.ResponseWriter, r *http.Request) {
-	var migrateParams msg.MigrateParams
-	encoder := json.NewEncoder(w)
+type HTTPResponse func(http.ResponseWriter, *http.Request)
 
-	err := json.NewDecoder(r.Body).Decode(&migrateParams)
-	if err != nil {
-		// replace that with logging error
-		fmt.Println(err)
+type ResultOk struct {
+	Success bool
+	Result  string
+}
 
-		// build errors
-		encoder.Encode(msg.Result{false, "So sad.. :( error occured"})
-	} else {
-		// validate params
+type ResultErr struct {
+	Success bool
+	ErrCode int
+	Message string
+}
 
-		// send params to executor
+func GenericHandler(f func(*json.Decoder) (string, error)) HTTPResponse {
+	return func(w http.ResponseWriter, r *http.Request) {
+		encoder := json.NewEncoder(w)
+		decoder := json.NewDecoder(r.Body)
 
-		// send it back to ui
-		json.NewEncoder(w).Encode(&migrateParams)
+		// TODO: as result return structures
+		result, err := f(decoder)
+		if err != nil {
+			encoder.Encode("ERR.. :(")
+		} else {
+			encoder.Encode(result)
+		}
 	}
-
 }
 
 func RunHTTPServer() {
-
 	router := mux.NewRouter()
-	router.HandleFunc("/migrate-machine", MigrateHandler).Methods("POST")
+	router.HandleFunc("/migrate-machine", GenericHandler(MigrateMachine)).Methods("POST")
 
 	err := http.ListenAndServe(":8080", router)
 	if err != nil {
 		panic(err)
 	}
-
 }
