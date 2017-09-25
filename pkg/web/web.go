@@ -20,11 +20,11 @@ type ResultErr struct {
 	Message string `json:"message"`
 }
 
-func GenericResponseHandler(f func(*http.Request) (interface{}, error)) HTTPResponse {
+func GenericResponseHandler(fn func(*http.Request) (interface{}, error)) HTTPResponse {
 	return func(writer http.ResponseWriter, request *http.Request) {
 		encoder := json.NewEncoder(writer)
 
-		result, err := f(request)
+		result, err := fn(request)
 		if err != nil {
 			// TODO: set appropriate err code
 			// do we want to build our err structures with codes?
