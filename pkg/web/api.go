@@ -2,6 +2,7 @@ package web
 
 import (
 	"encoding/json"
+	"errors"
 )
 
 type MigrateParams struct {
@@ -18,18 +19,26 @@ type MigrateParams struct {
 	Debug            bool            `json:"debug,omitempty"`
 }
 
-func MigrateMachine(decoder *json.Decoder) (string, error) {
-	var migrateParams MigrateParams
+func MigrateMachine(decoder *json.Decoder) (map[string]interface{}, error) {
+	var (
+		migrateParams MigrateParams
+		data          interface{}
+	)
 
-	err := decoder.Decode(&migrateParams)
-	if err != nil {
-		return "", err
+	if err := decoder.Decode(&migrateParams); err != nil {
+		return nil, err
 	}
 
 	// place for executor
 	// Executor.execute // or something
+	output_mock := []byte("{\"foo\": \"bar\"}")
 	// return result to client
 
-	return "{\"foo\": \"bar\"}", nil
+	if err := json.Unmarshal(output_mock, &data); err != nil {
+		return nil, errors.New("Invalid json output from executor")
+	}
+
+	result := data.(map[string]interface{})
+	return result, nil
 
 }
