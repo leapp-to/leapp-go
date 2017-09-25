@@ -9,6 +9,7 @@ import (
 
 type HTTPResponse func(http.ResponseWriter, *http.Request)
 
+// ResultOk and ResultErr are only example
 type ResultOk struct {
 	Success bool
 	Result  string

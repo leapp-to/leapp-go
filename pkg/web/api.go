@@ -2,7 +2,6 @@ package web
 
 import (
 	"encoding/json"
-	"fmt"
 )
 
 type MigrateParams struct {
@@ -26,8 +25,6 @@ func MigrateMachine(decoder *json.Decoder) (string, error) {
 	if err != nil {
 		return "", err
 	}
-
-	fmt.Println(migrateParams.Debug)
 
 	// place for executor
 	// Executor.execute // or something
