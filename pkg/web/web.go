@@ -38,7 +38,8 @@ func GenericHandler(f func(*json.Decoder) (map[string]interface{}, error)) HTTPR
 
 func RunHTTPServer() {
 	router := mux.NewRouter()
-	router.HandleFunc("/migrate-machine", GenericHandler(MigrateMachine)).Methods("POST")
+	apiV1 := router.PathPrefix("/v1.0").Subrouter()
+	apiV1.HandleFunc("/migrate-machine", GenericHandler(MigrateMachine)).Methods("POST")
 
 	err := http.ListenAndServe(":8080", router)
 	if err != nil {
