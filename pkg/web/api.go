@@ -2,7 +2,6 @@ package web
 
 import (
 	"encoding/json"
-	"errors"
 	"net/http"
 )
 
@@ -35,8 +34,8 @@ func MigrateMachine(request *http.Request) (interface{}, error) {
 	output_mock := []byte("{\"foo\": \"bar\"}")
 	// return result to client
 
-	if json.Unmarshal(output_mock, &data) != nil {
-		return nil, errors.New("Invalid json output from executor")
+	if err := json.Unmarshal(output_mock, &data); err != nil {
+		return nil, err
 	}
 
 	result := data.(map[string]interface{})
