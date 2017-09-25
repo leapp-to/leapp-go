@@ -7,7 +7,7 @@ import (
 
 type MigrateParams struct {
 	SourceHost       string            `json:"source_host,omitempty"`
-	TargetHost       string            `json:"target_target,omitempty"`
+	TargetHost       string            `json:"target_host,omitempty"`
 	ContainerName    string            `json:"container_name,omitempty"`
 	SourceUser       string            `json:"source_user,omitempty"`
 	TargetUser       string            `json:"target_user,omitempty"`
