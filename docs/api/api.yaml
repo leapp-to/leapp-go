@@ -1,0 +1,62 @@
+swagger: '2.0'
+info: 
+  description: "Container API"
+  version: "1.0"
+  title: "Leapp Container API"
+basePath: "/v1"
+
+consumes: 
+- "application/json"
+produces: 
+- "application/json"
+
+paths:
+  /container/delete:
+    post:
+      summary: "Delete the container on target"
+      parameters:
+       - name: "body"
+         in: "body"
+         required: true
+         schema:
+           $ref: '#/definitions/Container'
+      
+      responses:
+        200:
+          description: "Delete response"
+          schema:
+            $ref: '#/definitions/Result'
+          
+          
+definitions:
+  ## CONTAINER INPUT
+  Container:
+    type: "object"
+    required: 
+      - "container"
+    properties:
+      container:
+        type: "string"
+      target:
+        type: "string"
+        default: "localhost"
+      user:
+        type: "string"
+        default: "root"
+        
+  Result:
+    ## RESULT BODY
+    type: "object"
+    required: 
+      - "err_code"
+      - "output"
+      - "err_message"
+    properties:
+      err_code:
+        type: "integer"
+        default: 0
+      output:
+        type: object
+      err_message:
+        type: "string"
+        default: ""
