@@ -9,29 +9,29 @@ import (
 
 type HTTPResponse func(http.ResponseWriter, *http.Request)
 
-// ResultOk and ResultErr are only example
 type ResultOk struct {
-	Success bool
-	Result  string
+	Success bool                   `json:"success"`
+	Result  map[string]interface{} `json:"result"`
 }
 
 type ResultErr struct {
-	Success bool
-	ErrCode int
-	Message string
+	Success bool   `json:"success"`
+	ErrCode int    `json:"err_code"`
+	Message string `json:"message"`
 }
 
-func GenericHandler(f func(*json.Decoder) (string, error)) HTTPResponse {
+func GenericHandler(f func(*json.Decoder) (map[string]interface{}, error)) HTTPResponse {
 	return func(w http.ResponseWriter, r *http.Request) {
 		encoder := json.NewEncoder(w)
 		decoder := json.NewDecoder(r.Body)
 
-		// TODO: as result return structures
 		result, err := f(decoder)
 		if err != nil {
-			encoder.Encode("ERR.. :(")
+			// TODO: set appropriate err code
+			// do we want to build our err structures with codes?
+			encoder.Encode(ResultErr{false, 1, err.Error()})
 		} else {
-			encoder.Encode(result)
+			encoder.Encode(ResultOk{true, result})
 		}
 	}
 }
