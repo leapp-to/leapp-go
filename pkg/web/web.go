@@ -9,15 +9,10 @@ import (
 
 type HTTPResponse func(http.ResponseWriter, *http.Request)
 
-type ResultOk struct {
-	Success bool        `json:"success"`
-	Result  interface{} `json:"result"`
-}
-
-type ResultErr struct {
-	Success bool   `json:"success"`
-	ErrCode int    `json:"err_code"`
-	Message string `json:"message"`
+type Result struct {
+	Output     interface{} `json:"output,omitempty"`
+	ErrCode    int         `json:"err_code"`
+	ErrMessage string      `json:"err_message,omitempty"`
 }
 
 func GenericResponseHandler(fn func(*http.Request) (interface{}, error)) HTTPResponse {
@@ -28,9 +23,9 @@ func GenericResponseHandler(fn func(*http.Request) (interface{}, error)) HTTPRes
 		if err != nil {
 			// TODO: set appropriate err code
 			// do we want to build our err structures with codes?
-			encoder.Encode(ResultErr{false, 1, err.Error()})
+			encoder.Encode(Result{ErrCode: 1, ErrMessage: err.Error()})
 		} else {
-			encoder.Encode(ResultOk{true, result})
+			encoder.Encode(Result{ErrCode: 0, Output: result})
 		}
 	}
 }
