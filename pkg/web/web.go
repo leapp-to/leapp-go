@@ -10,8 +10,8 @@ import (
 type HTTPResponse func(http.ResponseWriter, *http.Request)
 
 type ResultOk struct {
-	Success bool                   `json:"success"`
-	Result  map[string]interface{} `json:"result"`
+	Success bool        `json:"success"`
+	Result  interface{} `json:"result"`
 }
 
 type ResultErr struct {
@@ -20,12 +20,11 @@ type ResultErr struct {
 	Message string `json:"message"`
 }
 
-func GenericHandler(f func(*json.Decoder) (map[string]interface{}, error)) HTTPResponse {
-	return func(w http.ResponseWriter, r *http.Request) {
-		encoder := json.NewEncoder(w)
-		decoder := json.NewDecoder(r.Body)
+func GenericResponseHandler(f func(*http.Request) (interface{}, error)) HTTPResponse {
+	return func(writer http.ResponseWriter, request *http.Request) {
+		encoder := json.NewEncoder(writer)
 
-		result, err := f(decoder)
+		result, err := f(request)
 		if err != nil {
 			// TODO: set appropriate err code
 			// do we want to build our err structures with codes?
@@ -39,7 +38,7 @@ func GenericHandler(f func(*json.Decoder) (map[string]interface{}, error)) HTTPR
 func RunHTTPServer() {
 	router := mux.NewRouter()
 	apiV1 := router.PathPrefix("/v1.0").Subrouter()
-	apiV1.HandleFunc("/migrate-machine", GenericHandler(MigrateMachine)).Methods("POST")
+	apiV1.HandleFunc("/migrate-machine", GenericResponseHandler(MigrateMachine)).Methods("POST")
 
 	err := http.ListenAndServe(":8080", router)
 	if err != nil {
