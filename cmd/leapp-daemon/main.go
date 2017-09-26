@@ -20,15 +20,15 @@ var (
 )
 
 func main() {
-	os.Exit(Main())
+	os.Exit(Main(nil))
 }
 
-func Main() int {
+func Main(up chan<- struct{}) int {
 	flag.Parse()
 
 	if *flagHelp {
 		flag.Usage()
-		os.Exit(0)
+		return 0
 	}
 
 	// Parse options
@@ -42,20 +42,22 @@ func Main() int {
 	os.Setenv("LEAPP_DAEMON_ADDR", options.ListenAddress)
 	defer os.Unsetenv("LEAPP_DAEMON_ADDR")
 
-	// Start server
+	// Start HTTP server
 	webHandler := web.New(&options)
 	go webHandler.Run()
 
-	// Shutdown conditions
+	// Handle shutdown under different conditions
 	term := make(chan os.Signal, 1)
 	signal.Notify(term, os.Interrupt, syscall.SIGTERM)
 	select {
 	case <-term:
 		log.Println("Received SIGTERM. Shutting down...")
-		return 0
+	case up <- struct{}{}:
+		log.Println("Up channel unblocked. Shutting down...")
 	case err := <-webHandler.ErrorCh():
 		log.Printf("Error starting service: %v\n", err)
 		return 1
 	}
+
 	return 0
 }
