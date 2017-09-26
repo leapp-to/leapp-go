@@ -56,5 +56,10 @@ func GetEndpoints() []EndpointEntry {
 			Endpoint:    "/port-map",
 			HandlerFunc: GenericResponseHandler(PortMap),
 		},
+		{
+			Method:      "POST",
+			Endpoint:    "/destroy-container",
+			HandlerFunc: GenericResponseHandler(DestroyContainer),
+		},
 	}
 }
