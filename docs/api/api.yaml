@@ -33,11 +33,11 @@ definitions:
     type: "object"
     description: "Base schema for container API calls"
     required: 
-      - "container"
+      - "container_name"
     properties:
-      container:
+      container_name:
         type: "string"
-      target:
+      target_host:
         type: "string"
         default: "localhost"
       target_user:
@@ -48,7 +48,7 @@ definitions:
     type: "object"
     description: "Destroy/Delete container request"
     allOf:
-      - $ref: '#/definitions/Container'
+      - $ref: '#/definitions/ContainerBase'
 
   Result:
     description: "Default API response" 
