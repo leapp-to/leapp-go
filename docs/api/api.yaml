@@ -1,9 +1,9 @@
 swagger: '2.0'
 info: 
-  description: "Container API"
+  description: "LeApp daemon API"
   version: "1.0"
-  title: "Leapp Container API"
-basePath: "/v1"
+  title: "LeApp daemon API"
+basePath: "/v1.0"
 
 consumes: 
 - "application/json"
@@ -19,7 +19,7 @@ paths:
          in: "body"
          required: true
          schema:
-           $ref: '#/definitions/Container'
+           $ref: '#/definitions/DeleteContainer'
       
       responses:
         200:
@@ -29,9 +29,9 @@ paths:
           
           
 definitions:
-  ## CONTAINER INPUT
-  Container:
+  ContainerBase:
     type: "object"
+    description: "Base schema for container API calls"
     required: 
       - "container"
     properties:
@@ -40,12 +40,18 @@ definitions:
       target:
         type: "string"
         default: "localhost"
-      user:
+      target_user:
         type: "string"
         default: "root"
-        
+
+  DeleteContainer:
+    type: "object"
+    description: "Destroy/Delete container request"
+    allOf:
+      - $ref: '#/definitions/Container'
+
   Result:
-    ## RESULT BODY
+    description: "Default API response" 
     type: "object"
     required: 
       - "err_code"
