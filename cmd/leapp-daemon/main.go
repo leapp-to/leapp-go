@@ -40,6 +40,7 @@ func Main() int {
 
 	// Set the appropriate env var for clients to connect
 	os.Setenv("LEAPP_DAEMON_ADDR", options.ListenAddress)
+	defer os.Unsetenv("LEAPP_DAEMON_ADDR")
 
 	// Start server
 	webHandler := web.New(&options)
