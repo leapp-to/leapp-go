@@ -11,7 +11,7 @@ produces:
 - "application/json"
 
 paths:
-  /container/delete:
+  /destroy-container:
     post:
       summary: "Delete the container on target"
       parameters:
@@ -19,7 +19,7 @@ paths:
          in: "body"
          required: true
          schema:
-           $ref: '#/definitions/DeleteContainer'
+           $ref: '#/definitions/DestroyContainer'
       
       responses:
         200:
@@ -44,7 +44,7 @@ definitions:
         type: "string"
         default: "root"
 
-  DeleteContainer:
+  DestroyContainer:
     type: "object"
     description: "Destroy/Delete container request"
     allOf:
