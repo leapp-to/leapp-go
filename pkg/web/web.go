@@ -1,42 +1,57 @@
 package web
 
 import (
-	"encoding/json"
+	"net"
 	"net/http"
+	"time"
 
 	"github.com/gorilla/mux"
+	"github.com/leapp-to/leapp-go/pkg/api"
 )
 
-type HTTPResponse func(http.ResponseWriter, *http.Request)
-
-type Result struct {
-	Output     interface{} `json:"output,omitempty"`
-	ErrCode    int         `json:"err_code"`
-	ErrMessage string      `json:"err_message,omitempty"`
+type Options struct {
+	ListenAddress string
+	ReadTimeout   time.Duration
+	WriteTimeout  time.Duration
 }
 
-func GenericResponseHandler(fn func(*http.Request) (interface{}, error)) HTTPResponse {
-	return func(writer http.ResponseWriter, request *http.Request) {
-		encoder := json.NewEncoder(writer)
+type Handler struct {
+	options *Options
+	mux     *mux.Router
+	errorCh chan error
+}
 
-		result, err := fn(request)
-		if err != nil {
-			// TODO: set appropriate err code
-			// do we want to build our err structures with codes?
-			encoder.Encode(Result{ErrCode: 1, ErrMessage: err.Error()})
-		} else {
-			encoder.Encode(Result{ErrCode: 0, Output: result})
-		}
+func (h *Handler) Run() {
+	srv := &http.Server{
+		Handler:      h.mux,
+		Addr:         h.options.ListenAddress,
+		ReadTimeout:  h.options.ReadTimeout * time.Second,
+		WriteTimeout: h.options.WriteTimeout * time.Second,
+	}
+
+	if listener, err := net.Listen("tcp", srv.Addr); err == nil {
+		h.errorCh <- srv.Serve(listener)
+	} else {
+		h.errorCh <- err
 	}
 }
 
-func RunHTTPServer() {
-	router := mux.NewRouter()
-	apiV1 := router.PathPrefix("/v1.0").Subrouter()
-	apiV1.HandleFunc("/migrate-machine", GenericResponseHandler(MigrateMachine)).Methods("POST")
+func (h *Handler) ErrorCh() <-chan error {
+	return h.errorCh
+}
 
-	err := http.ListenAndServe(":8080", router)
-	if err != nil {
-		panic(err)
+func New(o *Options) *Handler {
+	h := &Handler{
+		mux:     mux.NewRouter(),
+		errorCh: make(chan error),
+		options: o,
 	}
+
+	apiV1 := h.mux.PathPrefix("/v1").Subrouter()
+
+	for _, e := range api.GetEndpoints() {
+		apiV1.HandleFunc(e.Endpoint, e.HandlerFunc).Methods(e.Method)
+	}
+
+	return h
 }
