@@ -23,6 +23,7 @@ func main() {
 	os.Exit(Main(nil))
 }
 
+// Main controls the startup and shutdown of the daemon lifecycle
 func Main(up chan<- struct{}) int {
 	flag.Parse()
 
@@ -37,10 +38,6 @@ func Main(up chan<- struct{}) int {
 		ReadTimeout:   time.Duration(defaultReadTimeout),
 		WriteTimeout:  time.Duration(*flagTimeout),
 	}
-
-	// Set the appropriate env var for clients to connect
-	os.Setenv("LEAPP_DAEMON_ADDR", options.ListenAddress)
-	defer os.Unsetenv("LEAPP_DAEMON_ADDR")
 
 	// Start HTTP server
 	webHandler := web.New(&options)
