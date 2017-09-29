@@ -1,13 +1,13 @@
 swagger: '2.0'
-info: 
+info:
   description: "LeApp daemon API"
   version: "1.0"
   title: "LeApp daemon API"
 basePath: "/v1.0"
 
-consumes: 
+consumes:
 - "application/json"
-produces: 
+produces:
 - "application/json"
 
 paths:
@@ -20,40 +20,80 @@ paths:
          required: true
          schema:
            $ref: '#/definitions/DestroyContainer'
-      
+
       responses:
         200:
           description: "Delete response"
           schema:
             $ref: '#/definitions/Result'
-          
-          
+
+  /port-inspect:
+    post:
+      summary: "Inspect ports on target"
+      parameters:
+       - name: "body"
+         in: "body"
+         required: true
+         schema:
+           $ref: '#/definitions/PortInspect'
+
+      responses:
+        200:
+          description: "Delete response"
+          schema:
+            $ref: '#/definitions/Result'
+
+
 definitions:
+  ## Base definitions:
+
+  TargetHostBase:
+    type: "object"
+    description: "Base schema for target_host field"
+    properties:
+      target_host:
+        type: "string"
+        default: "localhost"
+
   ContainerBase:
     type: "object"
     description: "Base schema for container API calls"
-    required: 
+    required:
       - "container_name"
     properties:
       container_name:
         type: "string"
-      target_host:
-        type: "string"
-        default: "localhost"
       target_user:
         type: "string"
         default: "root"
+    allOf:
+      - $ref: '#/definitions/TargetHostBase'
 
+
+  ##
   DestroyContainer:
     type: "object"
     description: "Destroy/Delete container request"
     allOf:
       - $ref: '#/definitions/ContainerBase'
 
-  Result:
-    description: "Default API response" 
+  PortInspect:
     type: "object"
-    required: 
+    description: "Inspect ports request"
+    allOf:
+      - $ref: '#/definitions/TargetHostBase'
+    properties:
+      port_range:
+        type: "string"
+        default: ""
+      shallow_scan:
+        type: "boolean"
+        default: False
+
+  Result:
+    description: "Default API response"
+    type: "object"
+    required:
       - "err_code"
       - "output"
       - "err_message"
