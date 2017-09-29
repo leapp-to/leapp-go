@@ -1,7 +1,7 @@
 .PHONY: test
 test:
 	@go clean
-	@cd cmd/leapp-daemon && go test
+	@go test ./...
 
 .PHONY: all build
 all build:
