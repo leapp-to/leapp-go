@@ -23,7 +23,7 @@ paths:
 
       responses:
         200:
-          description: "Delete response"
+          description: "Success response"
           schema:
             $ref: '#/definitions/Result'
 
@@ -39,7 +39,23 @@ paths:
 
       responses:
         200:
-          description: "Delete response"
+          description: "Success response"
+          schema:
+            $ref: '#/definitions/Result'
+
+  /port-map:
+    post:
+      summary: "Map ports given by use or detected on source to ports available on target"
+      parameters:
+       - name: "body"
+         in: "body"
+         required: true
+         schema:
+           $ref: '#/definitions/PortMap'
+
+      responses:
+        200:
+          description: "Success response"
           schema:
             $ref: '#/definitions/Result'
 
@@ -54,6 +70,27 @@ definitions:
       target_host:
         type: "string"
         default: "localhost"
+
+  SourceHostBase:
+    type: "object"
+    description: "Base schema for source_host field"
+    required:
+      - "source_host"
+    properties:
+      source_host:
+        type: "string"
+
+  PortMapItemBase:
+    type: "object"
+    description: "Port map item"
+    required:
+      - "source_port"
+      - "target_port"
+    properties:
+      source_port:
+        type: "integer"
+      target_port:
+        type: "integer"
 
   ContainerBase:
     type: "object"
@@ -89,6 +126,27 @@ definitions:
       shallow_scan:
         type: "boolean"
         default: False
+
+  PortMap:
+    type: "object"
+    description: "Inspect ports request"
+    allOf:
+      - $ref: '#/definitions/TargetHostBase'
+      - $ref: '#/definitions/SourceHostBase'
+    properties:
+      tcp_ports:
+        type: "array"
+        items:
+          - $ref: '#/definitions/PortMapItemBase'
+        default: []
+      excluded_tcp_ports:
+        type: "array"
+        items:
+          type: "integer"
+        default: []
+      default_port_map:
+        type: "boolean"
+        default: True
 
   Result:
     description: "Default API response"
