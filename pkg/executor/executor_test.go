@@ -21,7 +21,7 @@ func TestSuccessExec(t *testing.T) {
 	for _, td := range testData {
 
 		c := Command{
-			CmdLine: td.Cmd,
+			cmdLine: td.Cmd,
 			Stdin:   td.Stdin,
 		}
 
@@ -52,7 +52,7 @@ func TestFailExec(t *testing.T) {
 	for _, td := range testData {
 
 		c := Command{
-			CmdLine: td.Cmd,
+			cmdLine: td.Cmd,
 			Stdin:   td.Stdin,
 		}
 
