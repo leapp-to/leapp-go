@@ -1,4 +1,4 @@
-// Package executor provides an abstration for executing commands in the OS.
+// Package executor provides an abstration for executing actors using an external tool.
 package executor
 
 import (
@@ -7,6 +7,10 @@ import (
 	"strings"
 	"syscall"
 )
+
+// actorRunner is an actor execution tool
+// TODO: using a wrapper script for testing only, but runner.py in snactor repo should be refactored into a standalone tool so it can be used by leapp-daemon
+const actorRunner = "/usr/local/bin/actor_runner"
 
 // Result represents the outcome of a command execution.
 type Result struct {
@@ -17,7 +21,7 @@ type Result struct {
 
 // Command represents the command to be executed along its stdin.
 type Command struct {
-	CmdLine []string
+	cmdLine []string
 	Stdin   string
 }
 
@@ -26,7 +30,7 @@ type Command struct {
 func (c *Command) Execute() *Result {
 	var stderr, stdout bytes.Buffer
 
-	cmd := exec.Command(c.CmdLine[0], c.CmdLine[1:]...)
+	cmd := exec.Command(c.cmdLine[0], c.cmdLine[1:]...)
 
 	cmd.Stdin = strings.NewReader(c.Stdin)
 	cmd.Stdout = &stdout
@@ -58,4 +62,14 @@ func runWithExitCode(cmd *exec.Cmd) int {
 	}
 
 	return exitCode
+}
+
+// New initializes a new Command that works with actorRunner
+func New(actorName, stdin string) *Command {
+	cl := append(strings.Split(actorRunner, " "), actorName)
+	c := &Command{cmdLine: cl,
+		Stdin: stdin,
+	}
+
+	return c
 }
