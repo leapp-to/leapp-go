@@ -84,12 +84,15 @@ definitions:
     type: "object"
     description: "Port map item"
     required:
-      - "source_port"
-      - "target_port"
+      - "protocol"
+      - "exposed_port"
+      - "port"
     properties:
-      source_port:
+      protocol:
+        type: "string"
+      exposed_port:
         type: "integer"
-      target_port:
+      port:
         type: "integer"
 
   ContainerBase:
