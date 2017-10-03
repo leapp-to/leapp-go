@@ -69,5 +69,7 @@ func MigrateMachine(request *http.Request) (interface{}, error) {
 
 	log.Println(r.Stderr)
 
-	return r.Stdout, nil
+	var out interface{}
+	err = json.Unmarshal([]byte(r.Stdout), &out)
+	return out, err
 }
