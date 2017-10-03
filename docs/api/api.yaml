@@ -1,0 +1,169 @@
+swagger: '2.0'
+info:
+  description: "LeApp daemon API"
+  version: "1.0"
+  title: "LeApp daemon API"
+basePath: "/v1"
+
+consumes:
+- "application/json"
+produces:
+- "application/json"
+
+paths:
+  /destroy-container:
+    post:
+      summary: "Delete the container on target"
+      parameters:
+       - name: "body"
+         in: "body"
+         required: true
+         schema:
+           $ref: '#/definitions/DestroyContainer'
+
+      responses:
+        200:
+          description: "Success response"
+          schema:
+            $ref: '#/definitions/Result'
+
+  /port-inspect:
+    post:
+      summary: "Inspect ports on target"
+      parameters:
+       - name: "body"
+         in: "body"
+         required: true
+         schema:
+           $ref: '#/definitions/PortInspect'
+
+      responses:
+        200:
+          description: "Success response"
+          schema:
+            $ref: '#/definitions/Result'
+
+  /port-map:
+    post:
+      summary: "Map ports given by use or detected on source to ports available on target"
+      parameters:
+       - name: "body"
+         in: "body"
+         required: true
+         schema:
+           $ref: '#/definitions/PortMap'
+
+      responses:
+        200:
+          description: "Success response"
+          schema:
+            $ref: '#/definitions/Result'
+
+
+definitions:
+  ## Base definitions:
+
+  TargetHostBase:
+    type: "object"
+    description: "Base schema for target_host field"
+    properties:
+      target_host:
+        type: "string"
+        default: "localhost"
+
+  SourceHostBase:
+    type: "object"
+    description: "Base schema for source_host field"
+    required:
+      - "source_host"
+    properties:
+      source_host:
+        type: "string"
+
+  PortMapItemBase:
+    type: "object"
+    description: "Port map item"
+    required:
+      - "protocol"
+      - "exposed_port"
+      - "port"
+    properties:
+      protocol:
+        type: "string"
+      exposed_port:
+        type: "integer"
+      port:
+        type: "integer"
+
+  ContainerBase:
+    type: "object"
+    description: "Base schema for container API calls"
+    required:
+      - "container_name"
+    properties:
+      container_name:
+        type: "string"
+      target_user:
+        type: "string"
+        default: "root"
+    allOf:
+      - $ref: '#/definitions/TargetHostBase'
+
+
+  ##
+  DestroyContainer:
+    type: "object"
+    description: "Destroy/Delete container request"
+    allOf:
+      - $ref: '#/definitions/ContainerBase'
+
+  PortInspect:
+    type: "object"
+    description: "Inspect ports request"
+    allOf:
+      - $ref: '#/definitions/TargetHostBase'
+    properties:
+      port_range:
+        type: "string"
+        default: ""
+      shallow_scan:
+        type: "boolean"
+        default: False
+
+  PortMap:
+    type: "object"
+    description: "Inspect ports request"
+    allOf:
+      - $ref: '#/definitions/TargetHostBase'
+      - $ref: '#/definitions/SourceHostBase'
+    properties:
+      tcp_ports:
+        type: "array"
+        items:
+          - $ref: '#/definitions/PortMapItemBase'
+        default: []
+      excluded_tcp_ports:
+        type: "array"
+        items:
+          type: "integer"
+        default: []
+      default_port_map:
+        type: "boolean"
+        default: True
+
+  Result:
+    description: "Default API response"
+    type: "object"
+    required:
+      - "err_code"
+      - "output"
+      - "err_message"
+    properties:
+      err_code:
+        type: "integer"
+        default: 0
+      output:
+        type: object
+      err_message:
+        type: "string"
+        default: ""
