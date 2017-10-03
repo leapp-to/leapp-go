@@ -3,6 +3,8 @@ package api
 import (
     "encoding/json"
     "net/http"
+    "log"
+    "github.com/leapp-to/leapp-go/pkg/executor"
 )
 
 type CheckTargetParams struct {
@@ -11,7 +13,7 @@ type CheckTargetParams struct {
     TargetUser  string  `json:"target_user_name,omitempty"`
 }
 
-func buildActorInput(p *CheckTargetParams) (string, error) {
+func buildCheckTargetInput(p *CheckTargetParams) (string, error) {
     data := map[string]interface{}{
         "target_host":                  ObjValue{p.TargetHost},
         "check_target_service_status":  ObjValue{p.Status},
@@ -29,11 +31,11 @@ func buildActorInput(p *CheckTargetParams) (string, error) {
 func CheckTarget(request *http.Request) (interface{}, error) {
     var params CheckTargetParams
 
-    if err := json.NewDecoder(request.body).Decode(&params); err != nil {
+    if err := json.NewDecoder(request.Body).Decode(&params); err != nil {
         return nil, err
     }
 
-    actorInput, err := buildActorInput(&params)
+    actorInput, err := buildCheckTargetInput(&params)
     if err != nil {
         return nil, err
     }
