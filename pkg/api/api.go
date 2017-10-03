@@ -46,5 +46,10 @@ func GetEndpoints() []EndpointEntry {
 			Endpoint:    "/port-inspect",
 			HandlerFunc: GenericResponseHandler(PortInspect),
 		},
+    {
+			Method:      "POST",
+			Endpoint:    "/check-target",
+			HandlerFunc: GenericResponseHandler(CheckTarget),
+		},
 	}
 }
