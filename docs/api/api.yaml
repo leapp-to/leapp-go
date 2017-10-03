@@ -3,7 +3,7 @@ info:
   description: "LeApp daemon API"
   version: "1.0"
   title: "LeApp daemon API"
-basePath: "/v1.0"
+basePath: "/v1"
 
 consumes:
 - "application/json"
