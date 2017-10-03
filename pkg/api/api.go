@@ -45,6 +45,6 @@ func GetEndpoints() []EndpointEntry {
             Method:      "POST",
             Endpoint:    "/check-target",
             HandlerFunc: GenericResponseHandler(CheckTarget),
-        }
+        },
 	}
 }
