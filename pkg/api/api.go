@@ -41,5 +41,25 @@ func GetEndpoints() []EndpointEntry {
 			Endpoint:    "/migrate-machine",
 			HandlerFunc: GenericResponseHandler(MigrateMachine),
 		},
+		{
+			Method:      "POST",
+			Endpoint:    "/port-inspect",
+			HandlerFunc: GenericResponseHandler(PortInspect),
+		},
+		{
+			Method:      "POST",
+			Endpoint:    "/check-target",
+			HandlerFunc: GenericResponseHandler(CheckTarget),
+		},
+		{
+			Method:      "POST",
+			Endpoint:    "/port-map",
+			HandlerFunc: GenericResponseHandler(PortMap),
+		},
+		{
+			Method:      "POST",
+			Endpoint:    "/destroy-container",
+			HandlerFunc: GenericResponseHandler(DestroyContainer),
+		},
 	}
 }
