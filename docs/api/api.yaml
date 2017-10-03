@@ -123,12 +123,15 @@ definitions:
     allOf:
       - $ref: '#/definitions/TargetHostBase'
     properties:
-      port_range:
-        type: "string"
-        default: ""
-      shallow_scan:
-        type: "boolean"
-        default: False
+      scan_options:
+        type: "object"
+        properties:
+          port_range:
+            type: "string"
+            default: ""
+          shallow_scan:
+            type: "boolean"
+            default: False
 
   PortMap:
     type: "object"
