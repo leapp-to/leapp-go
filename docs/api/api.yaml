@@ -67,7 +67,7 @@ paths:
          in: "body"
          required: true
          schema:
-           $ref: '#/definitions/CheckTarget'
+           $ref: '#/definitions/CheckTargetInput'
 
       responses:
         200:
@@ -166,7 +166,7 @@ definitions:
         type: "boolean"
         default: True
 
-  CheckTarget:
+  CheckTargetInput:
     type: "object"
     description: "Check target request"
     properties:
