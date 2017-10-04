@@ -1,12 +1,11 @@
 language: go
 
 go:
-  - 1.8
-  - 1.9
-  - tip
+  - stable
 
 before_install:
-  - go get -v github.com/gorilla/mux
+  - make install-deps
+  - go get -v github.com/golang/lint/golint
 
 script:
-  - make test
+  - make test-all
