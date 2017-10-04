@@ -79,41 +79,66 @@ definitions:
       source_host:
         type: "string"
 
-  PortMapItemBase:
+  PortListItemBase:
     type: "object"
-    description: "Port map item"
+    description: "A map of ports with their respective data (can be just an empty map)"
+    required:
+      - "port"
+      - "port_data"
+    properties:
+      port:
+        type: "string"
+      port_data:
+        type: "object"
+        required:
+          - "name"
+        properties:
+          name:
+            description: "The name of a service running on this port, can be empty"
+            type: "string"
+            default: ""
+
+  PortListBase:
+    type: "object"
+    description: "A map of TCP/UDP ports"
+    required:
+      - "tcp"
+      - "udp"
+    properties:
+      tcp:
+        # hash of PortListItemBase
+        $ref: "#/definitions/PortListItemBase"
+      udp:
+        # hash of PortListItemBase
+        $ref: "#/definitions/PortListItemBase"
+
+  PortMappingItemBase:
+    type: "object"
+    description: ""
     required:
       - "protocol"
       - "exposed_port"
       - "port"
     properties:
       protocol:
+        description: "Port protocol"
         type: "string"
+        enum: ["tcp", "udp"]
       exposed_port:
+        description: "Port on which the service will be mapped to"
         type: "integer"
       port:
+        description: "Port on which the service is currently listening"
         type: "integer"
 
-  PortListItemBase:
-    type: "object"
-    properties: 
-      name: 
-        type: "string"
-        default: ""
-
-  PortListBase:
+  PortMappingBase:
     type: "object"
     description: ""
     properties:
-      tcp:
-        # hash of PortListItemBase 
-        description: "A map of ports"
-        $ref: "#/definitions/PortListItemBase"
-      udp: 
-        description: "A map of ports"
-        $ref: "#/definitions/PortListItemBase"
-        # hash of PortListItemBase 
-
+      ports:
+        type: "array"
+        items:
+          $ref: '#/definitions/PortMappingItemBase'
   ##
   DestroyContainerInput:
     type: "object"
@@ -128,7 +153,6 @@ definitions:
         default: "root"
     allOf:
       - $ref: '#/definitions/TargetHostBase'
-    type: "object"
 
   PortInspectInput:
     type: "object"
@@ -154,15 +178,9 @@ definitions:
       - $ref: '#/definitions/SourceHostBase'
     properties:
       tcp_ports:
-        type: "array"
-        items:
-          - $ref: '#/definitions/PortMapItemBase'
-        default: []
+        $ref: '#/definitions/PortMappingBase'
       excluded_tcp_ports:
-        type: "array"
-        items:
-          type: "integer"
-        default: []
+        $ref: '#/definitions/PortListBase'
       default_port_map:
         type: "boolean"
         default: True
