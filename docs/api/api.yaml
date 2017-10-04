@@ -19,7 +19,7 @@ paths:
          in: "body"
          required: true
          schema:
-           $ref: '#/definitions/DestroyContainer'
+           $ref: '#/definitions/DestroyContainerInput'
 
       responses:
         200:
@@ -35,7 +35,7 @@ paths:
          in: "body"
          required: true
          schema:
-           $ref: '#/definitions/PortInspect'
+           $ref: '#/definitions/PortInspectInput'
 
       responses:
         200:
@@ -51,7 +51,7 @@ paths:
          in: "body"
          required: true
          schema:
-           $ref: '#/definitions/PortMap'
+           $ref: '#/definitions/PortMapInput'
 
       responses:
         200:
@@ -62,7 +62,6 @@ paths:
 
 definitions:
   ## Base definitions:
-
   TargetHostBase:
     type: "object"
     description: "Base schema for target_host field"
@@ -95,9 +94,30 @@ definitions:
       port:
         type: "integer"
 
-  ContainerBase:
+  PortListItemBase:
     type: "object"
-    description: "Base schema for container API calls"
+    properties: 
+      name: 
+        type: "string"
+        default: ""
+
+  PortListBase:
+    type: "object"
+    description: ""
+    properties:
+      tcp:
+        # hash of PortListItemBase 
+        description: "A map of ports"
+        $ref: "#/definitions/PortListItemBase"
+      udp: 
+        description: "A map of ports"
+        $ref: "#/definitions/PortListItemBase"
+        # hash of PortListItemBase 
+
+  ##
+  DestroyContainerInput:
+    type: "object"
+    description: "Destroy/Delete container request"
     required:
       - "container_name"
     properties:
@@ -108,16 +128,9 @@ definitions:
         default: "root"
     allOf:
       - $ref: '#/definitions/TargetHostBase'
-
-
-  ##
-  DestroyContainer:
     type: "object"
-    description: "Destroy/Delete container request"
-    allOf:
-      - $ref: '#/definitions/ContainerBase'
 
-  PortInspect:
+  PortInspectInput:
     type: "object"
     description: "Inspect ports request"
     allOf:
@@ -133,7 +146,7 @@ definitions:
             type: "boolean"
             default: False
 
-  PortMap:
+  PortMapInput:
     type: "object"
     description: "Inspect ports request"
     allOf:
