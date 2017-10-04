@@ -2,42 +2,44 @@ package api
 
 import (
 	"encoding/json"
-	"github.com/leapp-to/leapp-go/pkg/executor"
 	"log"
 	"net/http"
+
+	"github.com/leapp-to/leapp-go/pkg/executor"
 )
 
-type PortInspectParams struct {
-	TargetHost  string `json:"target_host,omitempty"`
-	PortRange   string `json:"port_range,omitempty"`
-	ShallowScan bool   `json:"shallow_scan,omitempty"`
+type portInspectParams struct {
+	TargetHost  string `json:"target_host"`
+	PortRange   string `json:"port_range"`
+	ShallowScan bool   `json:"shallow_scan"`
 }
 
-func PortInspect(request *http.Request) (interface{}, error) {
-	var portInspectParams PortInspectParams
+func portInspectHandler(request *http.Request) (interface{}, error) {
+	var params portInspectParams
 
-	if err := json.NewDecoder(request.Body).Decode(&portInspectParams); err != nil {
+	if err := json.NewDecoder(request.Body).Decode(&params); err != nil {
 		return "", err
 	}
 
-	data := map[string]interface{}{
-		"host": ObjValue{portInspectParams.TargetHost},
+	d := map[string]interface{}{
+		"host": ObjValue{params.TargetHost},
 		"scan_options": map[string]interface{}{
-			"shallow_scan": portInspectParams.ShallowScan,
-			"port_range":   portInspectParams.PortRange}}
+			"shallow_scan": params.ShallowScan,
+			"port_range":   params.PortRange,
+		},
+	}
 
-	json_data, err := json.Marshal(data)
+	actorInput, err := json.Marshal(d)
 	if err != nil {
 		return "", err
 	}
 
-	exec := executor.New("port-inspect", string(json_data))
-	result := exec.Execute()
+	c := executor.New("port-inspect", string(actorInput))
+	r := c.Execute()
 
-	log.Println(result.Stderr)
+	log.Println(r.Stderr)
 
 	var out interface{}
-	json.Unmarshal([]byte(result.Stdout), &out)
-
+	json.Unmarshal([]byte(r.Stdout), &out)
 	return out, err
 }

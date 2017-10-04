@@ -9,18 +9,21 @@ import (
 	"github.com/leapp-to/leapp-go/pkg/api"
 )
 
+// Options contains parameters for the web handler.
 type Options struct {
 	ListenAddress string
 	ReadTimeout   time.Duration
 	WriteTimeout  time.Duration
 }
 
+// Handler contains everything needed to start the HTTP service.
 type Handler struct {
 	options *Options
 	mux     *mux.Router
 	errorCh chan error
 }
 
+// Run serves the HTTP endpoints.
 func (h *Handler) Run() {
 	srv := &http.Server{
 		Handler:      h.mux,
@@ -36,10 +39,12 @@ func (h *Handler) Run() {
 	}
 }
 
+// ErrorCh returns a channel where the web handler errors go to.
 func (h *Handler) ErrorCh() <-chan error {
 	return h.errorCh
 }
 
+// New initializes a new Handler.
 func New(o *Options) *Handler {
 	h := &Handler{
 		mux:     mux.NewRouter(),
