@@ -59,6 +59,21 @@ paths:
           schema:
             $ref: '#/definitions/Result'
 
+  /check-target:
+    post:
+      summary: "Check services on a target system"
+      parameters:
+       - name: "body"
+         in: "body"
+         required: true
+         schema:
+           $ref: '#/definitions/CheckTarget'
+
+      responses:
+        200:
+          description: "Success response"
+          schema:
+            $ref: '#/definitions/Result'
 
 definitions:
   ## Base definitions:
@@ -184,6 +199,20 @@ definitions:
       default_port_map:
         type: "boolean"
         default: True
+
+  CheckTarget:
+    type: "object"
+    description: "Check target request"
+    properties:
+      target_user_name:
+        type: "string"
+        default: "root"
+      check_target_service_status:
+        type: "boolean"
+        default: False
+    allOf:
+      - $ref: '#/definitions/TargetHostBase'
+
 
   Result:
     description: "Default API response"
