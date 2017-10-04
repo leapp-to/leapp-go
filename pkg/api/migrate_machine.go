@@ -8,8 +8,8 @@ import (
 	"github.com/leapp-to/leapp-go/pkg/executor"
 )
 
-// MigrateParams represents the parameters sent by the client
-type MigrateParams struct {
+// migrateParams represents the data sent by the client.
+type migrateParams struct {
 	StartContainer      bool                `json:"start_container"`
 	ContainerName       string              `json:"container_name"`
 	ForceCreate         bool                `json:"force_create"`
@@ -24,7 +24,7 @@ type MigrateParams struct {
 }
 
 // buildActorInput translates the data sent by the client into data that the actor can interpret.
-func buildActorInput(p *MigrateParams) (string, error) {
+func buildActorInput(p *migrateParams) (string, error) {
 	data := map[string]interface{}{
 		"start_container":        ObjValue{p.StartContainer},
 		"container_name":         ObjValue{p.ContainerName},
@@ -47,9 +47,9 @@ func buildActorInput(p *MigrateParams) (string, error) {
 	return string(j), nil
 }
 
-// MigrateMachine handles the /migrate-machine endpoint.
-func MigrateMachine(request *http.Request) (interface{}, error) {
-	var params MigrateParams
+// migrateMachineHandler handles the /migrate-machine endpoint.
+func migrateMachineHandler(request *http.Request) (interface{}, error) {
+	var params migrateParams
 
 	if err := json.NewDecoder(request.Body).Decode(&params); err != nil {
 		return nil, err

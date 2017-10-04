@@ -41,7 +41,7 @@ func GetEndpoints() []EndpointEntry {
 		{
 			Method:      "POST",
 			Endpoint:    "/migrate-machine",
-			HandlerFunc: genericResponseHandler(MigrateMachine),
+			HandlerFunc: genericResponseHandler(migrateMachineHandler),
 		},
 		{
 			Method:      "POST",
