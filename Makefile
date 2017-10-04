@@ -1,8 +1,13 @@
  BAD_FMT_FILES:= $(shell find . -iname '*.go' | grep -v /vendor/ | xargs gofmt -s -l)
+ BAD_IMP_FILES:= $(shell goimports -l .)
 
 .PHONY: fmt
 fmt:
 	@test -z $(BAD_FMT_FILES) || (echo -e "gofmt failed in the following file(s):\n$(BAD_FMT_FILES)" && exit 1)
+
+.PHONY: imports
+imports:
+	@test -z $(BAD_IMP_FILES) || (echo -e "goimports detected problems in the following file(s):\n$(BAD_IMP_FILES)" && exit 1)
 
 .PHONY: lint
 lint:
@@ -18,7 +23,7 @@ test:
 	@go test ./...
 
 .PHONY: test-all
-test-all: fmt lint vet test
+test-all: fmt lint vet imports test
 
 .PHONY: all build
 all build:
