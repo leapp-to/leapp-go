@@ -217,16 +217,24 @@ definitions:
   Result:
     description: "Default API response"
     type: "object"
-    required:
-      - "err_code"
-      - "output"
-      - "err_message"
     properties:
-      err_code:
-        type: "integer"
-        default: 0
-      output:
+      errors:
+        type: "array"
+        items:
+          $ref: '#/definitions/Error'
+        default: []
+      data:
         type: object
-      err_message:
+
+  Error:
+    type: "object"
+    description: ""
+    required:
+      - "code"
+    properties:
+      code:
+        type: "integer"
+      message:
         type: "string"
         default: ""
+
