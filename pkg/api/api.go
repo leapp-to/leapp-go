@@ -11,9 +11,10 @@ type Result struct {
 	Data   interface{} `json:"data,omitempty"`
 }
 
+// Error contains details about error returned by endpoint handler.
 type Error struct {
-	Code    int    `json:"err_code"`
-	Message string `json:"err_message,omitempty"`
+	Code    int    `json:"code"`
+	Message string `json:"message,omitempty"`
 }
 
 // genericResponseHandler wraps the result of the endpoint handler into a reponse that should be sent to the client.
@@ -24,12 +25,9 @@ func genericResponseHandler(fn func(*http.Request) (interface{}, error)) http.Ha
 
 		r, err := fn(request)
 		if err != nil {
-			var _err Error
 			// TODO: set appropriate err code
 			// do we want to build our err structures with codes?
-			_err.Code = 1
-			_err.Message = err.Error()
-			result.Errors = append(result.Errors, _err)
+			result.Errors = append(result.Errors, Error{1, err.Error()})
 		} else {
 			result.Data = r
 		}
