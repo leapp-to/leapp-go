@@ -25,6 +25,7 @@ func portInspectHandler(request *http.Request) (*executor.Command, error) {
 		"scan_options": map[string]interface{}{
 			"shallow_scan": params.ShallowScan,
 			"port_range":   params.PortRange,
+			"force_nmap":   !params.ShallowScan,
 		},
 	}
 
