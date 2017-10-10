@@ -34,6 +34,6 @@ func portInspectHandler(request *http.Request) (*executor.Command, error) {
 		return nil, err
 	}
 
-	c := executor.New("port-inspect", string(actorInput))
+	c := executor.New("portscan", string(actorInput))
 	return c, nil
 }
