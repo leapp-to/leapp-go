@@ -42,9 +42,17 @@ func genericResponseHandler(fn func(*http.Request) (*executor.Result, error)) ht
 			log.Printf("Actor stderr: %s\n", r.Stderr)
 		}
 
+		// Runner returned an exit code different from 0
+		if r.ExitCode != 0 {
+			msg := fmt.Sprintf("Actor execution failed with: %d", r.ExitCode)
+			result.Errors = append(result.Errors, Error{2, msg})
+			encoder.Encode(result)
+			return
+		}
+
 		// Actor returned an empty string (i.e. something went wrong with actor execution)
 		if r.Stdout == "" {
-			result.Errors = append(result.Errors, Error{2, "Actor dint't return data"})
+			result.Errors = append(result.Errors, Error{3, "Actor dint't return data"})
 			encoder.Encode(result)
 			return
 		}
