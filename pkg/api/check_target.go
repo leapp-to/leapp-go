@@ -2,7 +2,6 @@ package api
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 
 	"github.com/leapp-to/leapp-go/pkg/executor"
@@ -29,7 +28,7 @@ func buildCheckTargetInput(p *checkTargetParams) (string, error) {
 	return string(j), nil
 }
 
-func checkTargetHandler(request *http.Request) (interface{}, error) {
+func checkTargetHandler(request *http.Request) (*executor.Command, error) {
 	var params checkTargetParams
 
 	if err := json.NewDecoder(request.Body).Decode(&params); err != nil {
@@ -42,11 +41,5 @@ func checkTargetHandler(request *http.Request) (interface{}, error) {
 	}
 
 	c := executor.New("remote-target-check-group", actorInput)
-	r := c.Execute()
-
-	log.Println(r.Stderr)
-
-	var out interface{}
-	err = json.Unmarshal([]byte(r.Stdout), &out)
-	return out, err
+	return c, nil
 }

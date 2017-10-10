@@ -2,7 +2,6 @@ package api
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 
 	"github.com/leapp-to/leapp-go/pkg/executor"
@@ -14,7 +13,7 @@ type destroyContainerParams struct {
 	TargetUser    string `json:"target_user"`
 }
 
-func destroyContainerHandler(request *http.Request) (interface{}, error) {
+func destroyContainerHandler(request *http.Request) (*executor.Command, error) {
 	var params destroyContainerParams
 
 	if err := json.NewDecoder(request.Body).Decode(&params); err != nil {
@@ -29,15 +28,9 @@ func destroyContainerHandler(request *http.Request) (interface{}, error) {
 
 	actorInput, err := json.Marshal(d)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	c := executor.New("destroy-container", string(actorInput))
-	r := c.Execute()
-
-	log.Println(r.Stderr)
-
-	var out interface{}
-	err = json.Unmarshal([]byte(r.Stdout), &out)
-	return out, err
+	return c, nil
 }
