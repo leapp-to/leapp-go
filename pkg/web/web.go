@@ -33,7 +33,7 @@ func (h *Handler) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		log.Printf("\"%s %s\" - %s", req.Method, req.RequestURI, req.RemoteAddr)
 	}
 
-	ctx := context.WithValue(context.Background(), "Verbose", h.options.Verbose)
+	ctx := context.WithValue(context.Background(), api.CKey("Verbose"), h.options.Verbose)
 	h.mux.ServeHTTP(rw, req.WithContext(ctx))
 }
 
