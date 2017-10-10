@@ -53,23 +53,19 @@ func genericResponseHandler(fn func(*http.Request) (*executor.Result, error)) ht
 			return
 		}
 
-		// Actor returned an empty string (i.e. something went wrong with actor execution)
-		if r.Stdout == "" {
-			result.Errors = append(result.Errors, Error{3, "actor dint't return data"})
-			encoder.Encode(result)
-			return
-		}
-
 		// Decode result from actor and send it back to client
 		var stdout interface{}
 		if err := json.Unmarshal([]byte(r.Stdout), &stdout); err != nil {
-			e := fmt.Errorf("could not decode actor output: %v", err)
-			result.Errors = append(result.Errors, Error{1, e.Error()})
+			if r.Stdout == "" {
+				result.Errors = append(result.Errors, Error{3, "actor dint't return any data"})
+			} else {
+				e := fmt.Errorf("could not decode actor output: %v", err)
+				result.Errors = append(result.Errors, Error{3, e.Error()})
+			}
 			encoder.Encode(result)
 			return
 		}
 		result.Data = stdout
-
 		encoder.Encode(result)
 	}
 }
