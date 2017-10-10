@@ -2,7 +2,6 @@ package api
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 
 	"github.com/leapp-to/leapp-go/pkg/executor"
@@ -14,11 +13,11 @@ type portInspectParams struct {
 	ShallowScan bool   `json:"shallow_scan"`
 }
 
-func portInspectHandler(request *http.Request) (interface{}, error) {
+func portInspectHandler(request *http.Request) (*executor.Result, error) {
 	var params portInspectParams
 
 	if err := json.NewDecoder(request.Body).Decode(&params); err != nil {
-		return "", err
+		return nil, err
 	}
 
 	d := map[string]interface{}{
@@ -31,15 +30,9 @@ func portInspectHandler(request *http.Request) (interface{}, error) {
 
 	actorInput, err := json.Marshal(d)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	c := executor.New("port-inspect", string(actorInput))
-	r := c.Execute()
-
-	log.Println(r.Stderr)
-
-	var out interface{}
-	json.Unmarshal([]byte(r.Stdout), &out)
-	return out, err
+	return c.Execute(), nil
 }

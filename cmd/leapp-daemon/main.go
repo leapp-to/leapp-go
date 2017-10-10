@@ -17,6 +17,7 @@ var (
 	flagHelp    = flag.Bool("help", false, "show usage")
 	flagListen  = flag.String("listen", "127.0.0.1:8000", "host:port to listen on.")
 	flagTimeout = flag.Int64("timeout", 10, "time range in which daemon has to send a response to the client.")
+	flagVerbose = flag.Bool("verbose", false, "enable verbose mode")
 )
 
 func main() {
@@ -37,10 +38,13 @@ func Main(up chan<- struct{}) int {
 		ListenAddress: *flagListen,
 		ReadTimeout:   time.Duration(defaultReadTimeout),
 		WriteTimeout:  time.Duration(*flagTimeout),
+
+		Verbose: *flagVerbose,
 	}
 
 	// Start HTTP server
 	webHandler := web.New(&options)
+	log.Printf("Starting leapp-daemon at %s\n", options.ListenAddress)
 	go webHandler.Run()
 
 	// Handle shutdown under different conditions

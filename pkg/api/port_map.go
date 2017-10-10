@@ -2,7 +2,6 @@ package api
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 
 	"github.com/leapp-to/leapp-go/pkg/executor"
@@ -16,7 +15,7 @@ type portMapParams struct {
 	DefaultPortMap   bool                `json:"default_port_map"`
 }
 
-func portMapHandler(request *http.Request) (interface{}, error) {
+func portMapHandler(request *http.Request) (*executor.Result, error) {
 	var params portMapParams
 
 	if err := json.NewDecoder(request.Body).Decode(&params); err != nil {
@@ -33,15 +32,9 @@ func portMapHandler(request *http.Request) (interface{}, error) {
 
 	actorInput, err := json.Marshal(d)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	c := executor.New("port-mapping", string(actorInput))
-	r := c.Execute()
-
-	log.Println(r.Stderr)
-
-	var out interface{}
-	json.Unmarshal([]byte(r.Stdout), &out)
-	return out, err
+	return c.Execute(), nil
 }

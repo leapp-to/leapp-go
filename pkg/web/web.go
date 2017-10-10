@@ -1,6 +1,8 @@
 package web
 
 import (
+	"context"
+	"log"
 	"net"
 	"net/http"
 	"time"
@@ -14,6 +16,8 @@ type Options struct {
 	ListenAddress string
 	ReadTimeout   time.Duration
 	WriteTimeout  time.Duration
+
+	Verbose bool
 }
 
 // Handler contains everything needed to start the HTTP service.
@@ -23,10 +27,20 @@ type Handler struct {
 	errorCh chan error
 }
 
+// ServeHTTP implements the Handler interface.
+func (h *Handler) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
+	if h.options.Verbose {
+		log.Printf("\"%s %s\" - %s", req.Method, req.RequestURI, req.RemoteAddr)
+	}
+
+	ctx := context.WithValue(context.Background(), "Verbose", h.options.Verbose)
+	h.mux.ServeHTTP(rw, req.WithContext(ctx))
+}
+
 // Run serves the HTTP endpoints.
 func (h *Handler) Run() {
 	srv := &http.Server{
-		Handler:      h.mux,
+		Handler:      h,
 		Addr:         h.options.ListenAddress,
 		ReadTimeout:  h.options.ReadTimeout * time.Second,
 		WriteTimeout: h.options.WriteTimeout * time.Second,

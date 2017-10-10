@@ -2,7 +2,6 @@ package api
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 
 	"github.com/leapp-to/leapp-go/pkg/executor"
@@ -48,7 +47,7 @@ func buildActorInput(p *migrateParams) (string, error) {
 }
 
 // migrateMachineHandler handles the /migrate-machine endpoint.
-func migrateMachineHandler(request *http.Request) (interface{}, error) {
+func migrateMachineHandler(request *http.Request) (*executor.Result, error) {
 	var params migrateParams
 
 	if err := json.NewDecoder(request.Body).Decode(&params); err != nil {
@@ -65,11 +64,5 @@ func migrateMachineHandler(request *http.Request) (interface{}, error) {
 	c := executor.New("migrate-machine", actorInput)
 
 	// TODO: this blocks until the migration is done; so we might execute this in a worker in the future
-	r := c.Execute()
-
-	log.Println(r.Stderr)
-
-	var out interface{}
-	err = json.Unmarshal([]byte(r.Stdout), &out)
-	return out, err
+	return c.Execute(), nil
 }
