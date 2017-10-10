@@ -25,19 +25,22 @@ type Error struct {
 }
 
 // genericResponseHandler wraps the result of the endpoint handler into a reponse that should be sent to the client.
-func genericResponseHandler(fn func(*http.Request) (*executor.Result, error)) http.HandlerFunc {
+func genericResponseHandler(fn func(*http.Request) (*executor.Command, error)) http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
 		writer.Header().Set("Content-Type", "application/json")
 		encoder := json.NewEncoder(writer)
 		var result Result
 
-		r, err := fn(request)
+		// Calls the correct handler that will validate the data sent and create a executor.Command
+		c, err := fn(request)
 		if err != nil {
 			e := fmt.Errorf("error on endpoint handler execution: %v", err)
 			result.Errors = append(result.Errors, Error{1, e.Error()})
 			encoder.Encode(result)
 			return
 		}
+
+		r := c.Execute()
 
 		// If requested, log actor's stderr
 		v := request.Context().Value(CKey("Verbose")).(bool)

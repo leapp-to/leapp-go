@@ -28,7 +28,7 @@ func buildCheckTargetInput(p *checkTargetParams) (string, error) {
 	return string(j), nil
 }
 
-func checkTargetHandler(request *http.Request) (*executor.Result, error) {
+func checkTargetHandler(request *http.Request) (*executor.Command, error) {
 	var params checkTargetParams
 
 	if err := json.NewDecoder(request.Body).Decode(&params); err != nil {
@@ -41,5 +41,5 @@ func checkTargetHandler(request *http.Request) (*executor.Result, error) {
 	}
 
 	c := executor.New("remote-target-check-group", actorInput)
-	return c.Execute(), nil
+	return c, nil
 }

@@ -47,7 +47,7 @@ func buildActorInput(p *migrateParams) (string, error) {
 }
 
 // migrateMachineHandler handles the /migrate-machine endpoint.
-func migrateMachineHandler(request *http.Request) (*executor.Result, error) {
+func migrateMachineHandler(request *http.Request) (*executor.Command, error) {
 	var params migrateParams
 
 	if err := json.NewDecoder(request.Body).Decode(&params); err != nil {
@@ -60,9 +60,8 @@ func migrateMachineHandler(request *http.Request) (*executor.Result, error) {
 		return nil, err
 	}
 
-	// Call the actor runner passing data to its stdin
+	// Creates an executor.Command that calls the correct actor passing the data to its stdin
 	c := executor.New("migrate-machine", actorInput)
 
-	// TODO: this blocks until the migration is done; so we might execute this in a worker in the future
-	return c.Execute(), nil
+	return c, nil
 }

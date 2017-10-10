@@ -13,7 +13,7 @@ type destroyContainerParams struct {
 	TargetUser    string `json:"target_user"`
 }
 
-func destroyContainerHandler(request *http.Request) (*executor.Result, error) {
+func destroyContainerHandler(request *http.Request) (*executor.Command, error) {
 	var params destroyContainerParams
 
 	if err := json.NewDecoder(request.Body).Decode(&params); err != nil {
@@ -32,5 +32,5 @@ func destroyContainerHandler(request *http.Request) (*executor.Result, error) {
 	}
 
 	c := executor.New("destroy-container", string(actorInput))
-	return c.Execute(), nil
+	return c, nil
 }
