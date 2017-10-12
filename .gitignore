@@ -1,0 +1,6 @@
+cmd/leapp-daemon/leapp-daemon
+cmd/leapp-daemon/main
+cmd/actor-stdout/actor-stdout
+cmd/actor-stdout/main
+build
+*.so
