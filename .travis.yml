@@ -5,6 +5,7 @@ go:
 
 before_install:
   - make install-deps
+  - go get -v golang.org/x/tools/cmd/goimports
   - go get -v github.com/golang/lint/golint
 
 script:
