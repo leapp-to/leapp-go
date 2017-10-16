@@ -29,6 +29,7 @@ type Command struct {
 	Stdin      string
 }
 
+// CommandExecutionError is raised for errors happening in this package
 type CommandExecutionError string
 
 func (cee CommandExecutionError) Error() string {
