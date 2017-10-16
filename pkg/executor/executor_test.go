@@ -25,7 +25,7 @@ func TestSuccessExec(t *testing.T) {
 			Stdin:   td.Stdin,
 		}
 
-		r := c.Execute()
+		r, _ := c.Execute()
 
 		if r.Stdout != td.Stdout {
 			t.Errorf("unexpected stdout: got=%s expected=%s\n", r.Stdout, td.Stdout)
@@ -56,7 +56,7 @@ func TestFailExec(t *testing.T) {
 			Stdin:   td.Stdin,
 		}
 
-		r := c.Execute()
+		r, _ := c.Execute()
 
 		if !strings.Contains(r.Stderr, td.Stderr) {
 			t.Errorf("unexpected stderr: got=%s expected to contain=%s\n", r.Stderr, td.Stderr)
