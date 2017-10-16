@@ -80,6 +80,8 @@ func genericResponseHandler(fn func(*http.Request) (*executor.Command, error)) h
 type EndpointEntry struct {
 	Method      string
 	Endpoint    string
+	IsPrefix    bool
+	NeedsStrip  bool
 	HandlerFunc http.HandlerFunc
 }
 
@@ -110,6 +112,13 @@ func GetEndpoints() []EndpointEntry {
 			Method:      "POST",
 			Endpoint:    "/destroy-container",
 			HandlerFunc: genericResponseHandler(destroyContainerHandler),
+		},
+		{
+			Method:      "GET",
+			Endpoint:    "/doc",
+			IsPrefix:    true,
+			NeedsStrip:  true,
+			HandlerFunc: http.FileServer(http.Dir("/usr/share/leapp/apidoc/")).ServeHTTP,
 		},
 	}
 }
