@@ -40,11 +40,14 @@ func genericResponseHandler(fn func(*http.Request) (*executor.Command, error)) h
 			return
 		}
 
-		r := c.Execute()
+		r, err := c.Execute()
 
 		// If requested, log actor's stderr
 		v := request.Context().Value(CKey("Verbose")).(bool)
 		if v {
+			if err != nil {
+				log.Printf("Actor execution failed: %s\n", err.Error())
+			}
 			log.Printf("Actor stderr: %s\n", r.Stderr)
 		}
 

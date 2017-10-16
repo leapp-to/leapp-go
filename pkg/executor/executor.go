@@ -3,6 +3,8 @@ package executor
 
 import (
 	"bytes"
+	"io"
+	"os"
 	"os/exec"
 	"strings"
 	"syscall"
@@ -21,35 +23,71 @@ type Result struct {
 
 // Command represents the command to be executed along its stdin.
 type Command struct {
-	cmdLine []string
-	Stdin   string
+	StdoutFile string
+	StderrFile string
+	cmdLine    []string
+	Stdin      string
+}
+
+type CommandExecutionError string
+
+func (cee CommandExecutionError) Error() string {
+	return string(cee)
 }
 
 // Execute executes a given command passing data to its stdin.
 // It returns a Result struct mapping the info returned by the process executed.
-func (c *Command) Execute() *Result {
+func (c *Command) Execute() (*Result, error) {
 	var stderr, stdout bytes.Buffer
 
 	cmd := exec.Command(c.cmdLine[0], c.cmdLine[1:]...)
 
 	cmd.Stdin = strings.NewReader(c.Stdin)
-	cmd.Stdout = &stdout
-	cmd.Stderr = &stderr
+	if c.StdoutFile == "" {
+		cmd.Stdout = &stdout
+	} else {
+		stdoutPipe, err := cmd.StdoutPipe()
+		if err != nil {
+			return nil, CommandExecutionError("Failed to create stdout pipe: " + err.Error())
+		}
+		f, err := os.Create(c.StdoutFile)
+		if err != nil {
+			return nil, CommandExecutionError("Failed to create stdout file: " + err.Error())
+		}
+		go io.Copy(f, io.TeeReader(stdoutPipe, &stdout))
+	}
+	if c.StderrFile == "" {
+		cmd.Stderr = &stderr
+	} else {
+		stderrPipe, err := cmd.StderrPipe()
+		if err != nil {
+			return nil, CommandExecutionError("Failed to create stderr pipe: " + err.Error())
+		}
+		f, err := os.Create(c.StderrFile)
+		if err != nil {
+			return nil, CommandExecutionError("Failed to create stderr file: " + err.Error())
+		}
+		go io.Copy(f, io.TeeReader(stderrPipe, &stderr))
+	}
 
-	code := runWithExitCode(cmd)
+	code, err := runWithExitCode(cmd)
+	if err != nil {
+		err = CommandExecutionError("Executing process failed with: " + err.Error())
+	}
 
 	return &Result{
 		Stderr:   stderr.String(),
 		Stdout:   stdout.String(),
 		ExitCode: code,
-	}
+	}, err
 }
 
 // runWithExitCode simply runs a *exec.Cmd and return its exit code rather than an error
-func runWithExitCode(cmd *exec.Cmd) int {
+func runWithExitCode(cmd *exec.Cmd) (int, error) {
 	var exitCode int
 
-	if err := cmd.Run(); err != nil {
+	err := cmd.Run()
+	if err != nil {
 		exitCode = 1 // Default to 1 if err is not ExitError
 
 		if e, ok := err.(*exec.ExitError); ok {
@@ -61,15 +99,19 @@ func runWithExitCode(cmd *exec.Cmd) int {
 		exitCode = s.ExitStatus()
 	}
 
-	return exitCode
+	return exitCode, err
+}
+
+// NewProcess initializes a new Command
+func NewProcess(process string, args ...string) *Command {
+	return &Command{
+		cmdLine: append([]string{process}, args...),
+	}
 }
 
 // New initializes a new Command that works with actorRunner
 func New(actorName, stdin string) *Command {
-	cl := append(strings.Split(actorRunner, " "), actorName)
-	c := &Command{cmdLine: cl,
-		Stdin: stdin,
-	}
-
+	c := NewProcess(actorRunner, actorName)
+	c.Stdin = stdin
 	return c
 }
