@@ -9,8 +9,10 @@ import (
 
 type portInspectParams struct {
 	TargetHost  string `json:"target_host"`
+	TargetUser  string `json:"target_user"`
 	PortRange   string `json:"port_range"`
 	ShallowScan bool   `json:"shallow_scan"`
+	Debug       bool   `json:"debug"`
 }
 
 func portInspectHandler(request *http.Request) (*executor.Command, error) {
