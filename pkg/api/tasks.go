@@ -10,15 +10,18 @@ import (
 	"github.com/leapp-to/leapp-go/pkg/executor"
 )
 
+// ActorRunnerID represents an unique of a running actor.
 type ActorRunnerID struct {
 	uuid.UUID
 }
 
+// NewActorRunnerID returns a new ActorRunnerID.
 func NewActorRunnerID() ActorRunnerID {
 	u, _ := uuid.NewRandom()
 	return ActorRunnerID{u}
 }
 
+// ActorRunner stores running tasks along with channels to deliver results.
 type ActorRunner struct {
 	registry map[ActorRunnerID]*taskEntry
 	create   chan *actorCreateParams
@@ -37,6 +40,7 @@ type actorStatusParams struct {
 	Response chan *ActorStatus
 }
 
+// ActorStatus represents the status of a running actor.
 type ActorStatus struct {
 	ID     ActorRunnerID
 	Result *executor.Result
@@ -56,6 +60,7 @@ type taskEntry struct {
 	Error      error
 }
 
+// NewActorRunner returns a new ActorRunner.
 func NewActorRunner() *ActorRunner {
 	runner := &ActorRunner{
 		registry: make(map[ActorRunnerID]*taskEntry),
@@ -67,6 +72,7 @@ func NewActorRunner() *ActorRunner {
 	return runner
 }
 
+// StreamOutput sends a new actirStreanParams struct to an appropriate channel and returns an error.
 func (a *ActorRunner) StreamOutput(id ActorRunnerID, target io.WriteCloser) error {
 	result := make(chan error)
 	a.stream <- &actorStreamParams{
@@ -77,6 +83,7 @@ func (a *ActorRunner) StreamOutput(id ActorRunnerID, target io.WriteCloser) erro
 	return <-result
 }
 
+// Create sends a new actirCreateParams struct to an appropriate channel to be executed and returns a pointer to a new ActorRunnerID.
 func (a *ActorRunner) Create(actorName, stdin string) *ActorRunnerID {
 	params := actorCreateParams{
 		ActorName: actorName,
@@ -93,6 +100,7 @@ func (a *ActorRunner) Create(actorName, stdin string) *ActorRunnerID {
 	return nil
 }
 
+// GetStatus returns a status of a given ActorRunnerID.
 func (a *ActorRunner) GetStatus(id ActorRunnerID) *ActorStatus {
 	params := actorStatusParams{
 		ID:       id,
@@ -130,8 +138,10 @@ func (a *ActorRunner) run() {
 	}
 }
 
+// NoSuchTaskError represents a customized error used when the task is not found.
 type NoSuchTaskError struct{}
 
+// Error implements the error interface for NoSuchTaskError.
 func (n NoSuchTaskError) Error() string {
 	return "The requested task has not been found"
 }
