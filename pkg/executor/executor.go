@@ -11,8 +11,7 @@ import (
 )
 
 // actorRunner is an actor execution tool
-// TODO: using a wrapper script for testing only, but runner.py in snactor repo should be refactored into a standalone tool so it can be used by leapp-daemon
-const actorRunner = "/usr/local/bin/actor_runner"
+var actorRunner = "/usr/bin/snactor_runner"
 
 // Result represents the outcome of a command execution.
 type Result struct {
@@ -34,6 +33,13 @@ type CommandExecutionError string
 
 func (cee CommandExecutionError) Error() string {
 	return string(cee)
+}
+
+func init() {
+	// Let user define actorRunner via LEAPP_ACTOR_RUNNER env var
+	if runner, ok := os.LookupEnv("LEAPP_ACTOR_RUNNER"); ok {
+		actorRunner = runner
+	}
 }
 
 // Execute executes a given command passing data to its stdin.
