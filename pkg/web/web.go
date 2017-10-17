@@ -69,7 +69,7 @@ func New(o *Options) *Handler {
 	apiV1 := h.mux.PathPrefix("/v1").Subrouter()
 
 	for _, e := range api.GetEndpoints() {
-		var handler http.HandlerFunc = e.HandlerFunc
+		handler := e.HandlerFunc
 		if e.NeedsStrip {
 			handler = http.StripPrefix("/v1"+e.Endpoint, handler).ServeHTTP
 		}
