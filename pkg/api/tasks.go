@@ -28,7 +28,7 @@ type ActorRunner struct {
 
 type actorStreamParams struct {
 	ID       ActorRunnerID
-	Target   io.Writer
+	Target   io.WriteCloser
 	Response chan error
 }
 
@@ -67,7 +67,7 @@ func NewActorRunner() *ActorRunner {
 	return runner
 }
 
-func (a *ActorRunner) StreamOutput(id ActorRunnerID, target io.Writer) error {
+func (a *ActorRunner) StreamOutput(id ActorRunnerID, target io.WriteCloser) error {
 	result := make(chan error)
 	a.stream <- &actorStreamParams{
 		ID:       id,
@@ -116,7 +116,6 @@ func (a *ActorRunner) run() {
 				return
 			}
 			a.doCreate(v)
-
 		case v, ok := <-a.status:
 			if !ok {
 				return
@@ -127,7 +126,6 @@ func (a *ActorRunner) run() {
 				return
 			}
 			a.doStream(v)
-
 		}
 	}
 }
@@ -138,33 +136,40 @@ func (n NoSuchTaskError) Error() string {
 	return "The requested task has not been found"
 }
 
+func actorStream(w io.WriteCloser, f io.ReadCloser, doneChan chan struct{}) {
+	defer f.Close()
+	defer w.Close()
+	if doneChan != nil {
+	Loop:
+		for {
+			select {
+			default:
+				io.Copy(w, f)
+				time.Sleep(time.Second)
+			case <-doneChan:
+				io.Copy(w, f)
+				break Loop
+			}
+		}
+	} else {
+		io.Copy(w, f)
+	}
+}
+
 func (a *ActorRunner) doStream(params *actorStreamParams) {
 	if entry, ok := a.registry[params.ID]; !ok {
+		// In case of errors we have to do the closing
+		params.Target.Close()
 		params.Response <- NoSuchTaskError{}
 	} else {
 		file, err := os.Open(entry.StreamPath)
-		params.Response <- err
 		if file != nil {
-
-			go func(w io.Writer, f io.ReadCloser, doneChan chan struct{}) {
-				defer f.Close()
-				if doneChan != nil {
-				Loop:
-					for {
-						select {
-						default:
-							io.Copy(w, f)
-							time.Sleep(time.Second)
-						case <-doneChan:
-							io.Copy(w, f)
-							break Loop
-						}
-					}
-				} else {
-					io.Copy(w, f)
-				}
-			}(params.Target, file, entry.Done)
+			go actorStream(params.Target, file, entry.Done)
+		} else {
+			// In case of errors we have to do the closing
+			params.Target.Close()
 		}
+		params.Response <- err
 	}
 }
 
