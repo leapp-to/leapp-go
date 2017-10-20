@@ -40,6 +40,6 @@ func checkTargetHandler(request *http.Request) (*executor.Command, error) {
 		return nil, err
 	}
 
-	c := executor.New("remote-target-check-group", actorInput)
+	c := executor.New("remote-target-check-group-v2", actorInput)
 	return c, nil
 }
