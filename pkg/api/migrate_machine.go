@@ -79,6 +79,8 @@ func migrateMachineResult(rw http.ResponseWriter, req *http.Request) (interface{
 		return nil, http.StatusOK, NewApiError(nil, errTaskRunning, "task found, but there is no result yet")
 	}
 
+	logExecutorError(req.Context(), s.Result)
+
 	return parseExecutorResult(s.Result)
 }
 

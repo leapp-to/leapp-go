@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -16,6 +17,7 @@ func init() {
 	actorRunnerRegistry = NewActorRunner()
 }
 
+// parseExecutorResult parses a *executor.Result and returns the appropriate information.
 func parseExecutorResult(r *executor.Result) (interface{}, int, error) {
 	if r.ExitCode != 0 {
 		msg := fmt.Sprintf("actor execution failed with %d", r.ExitCode)
@@ -33,8 +35,15 @@ func parseExecutorResult(r *executor.Result) (interface{}, int, error) {
 	return stdout, http.StatusOK, nil
 }
 
-// syncCmd wraps the result of the endpoint handler into a reponse that should be sent to the client.
-func syncCmd(fn cmdFunc) respFunc {
+// logExecutorError logs the stderr of on executor.Result if verbose mode is enabled.
+func logExecutorError(ctx context.Context, r *executor.Result) {
+	if ctx.Value(CKey("Verbose")).(bool) {
+		log.Printf("Actor stderr: %s\n", r.Stderr)
+	}
+}
+
+// runCmd executes a given actor from a cmdFunc in order to extract executes a given actor without using any async capabilities.
+func runCmd(fn cmdFunc) respFunc {
 	return func(rw http.ResponseWriter, req *http.Request) (interface{}, int, error) {
 		c, err := fn(req)
 		if err != nil {
@@ -42,19 +51,18 @@ func syncCmd(fn cmdFunc) respFunc {
 		}
 
 		r, err := c.Execute()
-		// If requested, log actor's stderr
-		v := req.Context().Value(CKey("Verbose")).(bool)
-		if v {
-			if err != nil {
-				log.Printf("Actor execution failed: %s\n", err.Error())
-			}
-			log.Printf("Actor stderr: %s\n", r.Stderr)
+		if err != nil {
+			return nil, http.StatusBadRequest, NewApiError(err, errBadInput, "error on endpoint handler execution")
+
 		}
+
+		logExecutorError(req.Context(), r)
 
 		return parseExecutorResult(r)
 	}
 }
 
+// respHandler is the final handler that builds the response to be sent to the clients.
 func respHandler(fn respFunc) http.HandlerFunc {
 	return func(rw http.ResponseWriter, req *http.Request) {
 		var r apiResult
@@ -107,22 +115,22 @@ func GetEndpoints() []EndpointEntry {
 		{
 			Method:      "POST",
 			Endpoint:    "/port-inspect",
-			HandlerFunc: respHandler(syncCmd(portInspectCmd)),
+			HandlerFunc: respHandler(runCmd(portInspectCmd)),
 		},
 		{
 			Method:      "POST",
 			Endpoint:    "/check-target",
-			HandlerFunc: respHandler(syncCmd(checkTargetCmd)),
+			HandlerFunc: respHandler(runCmd(checkTargetCmd)),
 		},
 		{
 			Method:      "POST",
 			Endpoint:    "/port-map",
-			HandlerFunc: respHandler(syncCmd(portMapCmd)),
+			HandlerFunc: respHandler(runCmd(portMapCmd)),
 		},
 		{
 			Method:      "POST",
 			Endpoint:    "/destroy-container",
-			HandlerFunc: respHandler(syncCmd(destroyContainerCmd)),
+			HandlerFunc: respHandler(runCmd(destroyContainerCmd)),
 		},
 		{
 			Method:      "GET",
