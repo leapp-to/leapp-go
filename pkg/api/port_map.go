@@ -3,8 +3,6 @@ package api
 import (
 	"encoding/json"
 	"net/http"
-
-	"github.com/leapp-to/leapp-go/pkg/executor"
 )
 
 type portMapParams struct {
@@ -15,11 +13,11 @@ type portMapParams struct {
 	DefaultPortMap   bool                `json:"default_port_map"`
 }
 
-func portMapCmd(request *http.Request) (*executor.Command, error) {
+func portMap(rw http.ResponseWriter, req *http.Request) (interface{}, int, error) {
 	var params portMapParams
 
-	if err := json.NewDecoder(request.Body).Decode(&params); err != nil {
-		return nil, err
+	if err := json.NewDecoder(req.Body).Decode(&params); err != nil {
+		return nil, http.StatusBadRequest, NewApiError(err, errBadInput, "could not decode data sent by client")
 	}
 
 	d := map[string]interface{}{
@@ -32,9 +30,8 @@ func portMapCmd(request *http.Request) (*executor.Command, error) {
 
 	actorInput, err := json.Marshal(d)
 	if err != nil {
-		return nil, err
+		return nil, http.StatusBadRequest, NewApiError(err, errBadInput, "could not build actor's input")
 	}
 
-	c := executor.New("port-mapping", string(actorInput))
-	return c, nil
+	return runSyncActor(req.Context(), "port-mapping", string(actorInput))
 }

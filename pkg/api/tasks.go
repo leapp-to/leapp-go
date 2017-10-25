@@ -37,6 +37,7 @@ type actorStreamParams struct {
 
 type actorStatusParams struct {
 	ID       ActorRunnerID
+	Wait     bool
 	Response chan *ActorStatus
 }
 
@@ -101,9 +102,10 @@ func (a *ActorRunner) Create(actorName, stdin string) *ActorRunnerID {
 }
 
 // GetStatus returns a status of a given ActorRunnerID.
-func (a *ActorRunner) GetStatus(id *ActorRunnerID) *ActorStatus {
+func (a *ActorRunner) GetStatus(id *ActorRunnerID, wait bool) *ActorStatus {
 	params := actorStatusParams{
 		ID:       *id,
+		Wait:     wait,
 		Response: make(chan *ActorStatus),
 	}
 	a.status <- &params
@@ -204,12 +206,18 @@ func (a *ActorRunner) doCreate(params *actorCreateParams) {
 }
 
 func (a *ActorRunner) doStatus(params *actorStatusParams) {
-	if entry, ok := a.registry[params.ID]; !ok {
+	entry, ok := a.registry[params.ID]
+	if !ok {
 		params.Response <- nil
-	} else {
-		params.Response <- &ActorStatus{
-			ID:     params.ID,
-			Result: entry.Result,
-		}
+		return
+	}
+
+	if params.Wait {
+		<-entry.Done
+	}
+
+	params.Response <- &ActorStatus{
+		ID:     params.ID,
+		Result: entry.Result,
 	}
 }

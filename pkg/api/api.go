@@ -42,24 +42,20 @@ func logExecutorError(ctx context.Context, r *executor.Result) {
 	}
 }
 
-// runCmd executes a given actor from a cmdFunc in order to extract executes a given actor without using any async capabilities.
-func runCmd(fn cmdFunc) respFunc {
-	return func(rw http.ResponseWriter, req *http.Request) (interface{}, int, error) {
-		c, err := fn(req)
-		if err != nil {
-			return nil, http.StatusBadRequest, NewApiError(err, errBadInput, "error on endpoint handler execution")
-		}
-
-		r, err := c.Execute()
-		if err != nil {
-			return nil, http.StatusBadRequest, NewApiError(err, errBadInput, "error on endpoint handler execution")
-
-		}
-
-		logExecutorError(req.Context(), r)
-
-		return parseExecutorResult(r)
+func runSyncActor(ctx context.Context, name, input string) (interface{}, int, error) {
+	id := actorRunnerRegistry.Create(name, input)
+	s := actorRunnerRegistry.GetStatus(id, true)
+	if s == nil {
+		return nil, http.StatusNotFound, NewApiError(nil, errTaskNotFound, "task not found")
 	}
+
+	if s.Result == nil {
+		return nil, http.StatusOK, NewApiError(nil, errTaskRunning, "task found, but there is no result yet")
+	}
+
+	logExecutorError(ctx, s.Result)
+
+	return parseExecutorResult(s.Result)
 }
 
 // respHandler is the final handler that builds the response to be sent to the clients.
@@ -115,22 +111,22 @@ func GetEndpoints() []EndpointEntry {
 		{
 			Method:      "POST",
 			Endpoint:    "/port-inspect",
-			HandlerFunc: respHandler(runCmd(portInspectCmd)),
+			HandlerFunc: respHandler(portInspect),
 		},
 		{
 			Method:      "POST",
 			Endpoint:    "/check-target",
-			HandlerFunc: respHandler(runCmd(checkTargetCmd)),
+			HandlerFunc: respHandler(checkTarget),
 		},
 		{
 			Method:      "POST",
 			Endpoint:    "/port-map",
-			HandlerFunc: respHandler(runCmd(portMapCmd)),
+			HandlerFunc: respHandler(portMap),
 		},
 		{
 			Method:      "POST",
 			Endpoint:    "/destroy-container",
-			HandlerFunc: respHandler(runCmd(destroyContainerCmd)),
+			HandlerFunc: respHandler(destroyContainer),
 		},
 		{
 			Method:      "GET",

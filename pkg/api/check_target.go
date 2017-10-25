@@ -3,8 +3,6 @@ package api
 import (
 	"encoding/json"
 	"net/http"
-
-	"github.com/leapp-to/leapp-go/pkg/executor"
 )
 
 type checkTargetParams struct {
@@ -28,18 +26,17 @@ func buildCheckTargetInput(p *checkTargetParams) (string, error) {
 	return string(j), nil
 }
 
-func checkTargetCmd(request *http.Request) (*executor.Command, error) {
+func checkTarget(rw http.ResponseWriter, req *http.Request) (interface{}, int, error) {
 	var params checkTargetParams
 
-	if err := json.NewDecoder(request.Body).Decode(&params); err != nil {
-		return nil, err
+	if err := json.NewDecoder(req.Body).Decode(&params); err != nil {
+		return nil, http.StatusBadRequest, NewApiError(err, errBadInput, "could not decode data sent by client")
 	}
 
 	actorInput, err := buildCheckTargetInput(&params)
 	if err != nil {
-		return nil, err
+		return nil, http.StatusBadRequest, NewApiError(err, errBadInput, "could not build actor's input")
 	}
 
-	c := executor.New("remote-target-check-group", actorInput)
-	return c, nil
+	return runSyncActor(req.Context(), "remote-target-check-group", string(actorInput))
 }

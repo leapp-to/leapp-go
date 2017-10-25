@@ -70,7 +70,7 @@ func migrateMachineResult(rw http.ResponseWriter, req *http.Request) (interface{
 		return nil, http.StatusBadRequest, NewApiError(err, errBadInput, "could not parse ID")
 	}
 
-	s := actorRunnerRegistry.GetStatus(id)
+	s := actorRunnerRegistry.GetStatus(id, false)
 	if s == nil {
 		return nil, http.StatusNotFound, NewApiError(nil, errTaskNotFound, "task not found")
 	}
