@@ -13,7 +13,7 @@ type portInspectParams struct {
 	ShallowScan bool   `json:"shallow_scan"`
 }
 
-func portInspectHandler(request *http.Request) (*executor.Command, error) {
+func portInspectCmd(request *http.Request) (*executor.Command, error) {
 	var params portInspectParams
 
 	if err := json.NewDecoder(request.Body).Decode(&params); err != nil {

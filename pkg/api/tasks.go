@@ -101,9 +101,9 @@ func (a *ActorRunner) Create(actorName, stdin string) *ActorRunnerID {
 }
 
 // GetStatus returns a status of a given ActorRunnerID.
-func (a *ActorRunner) GetStatus(id ActorRunnerID) *ActorStatus {
+func (a *ActorRunner) GetStatus(id *ActorRunnerID) *ActorStatus {
 	params := actorStatusParams{
-		ID:       id,
+		ID:       *id,
 		Response: make(chan *ActorStatus),
 	}
 	a.status <- &params

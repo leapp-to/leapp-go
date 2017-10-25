@@ -15,7 +15,7 @@ type portMapParams struct {
 	DefaultPortMap   bool                `json:"default_port_map"`
 }
 
-func portMapHandler(request *http.Request) (*executor.Command, error) {
+func portMapCmd(request *http.Request) (*executor.Command, error) {
 	var params portMapParams
 
 	if err := json.NewDecoder(request.Body).Decode(&params); err != nil {

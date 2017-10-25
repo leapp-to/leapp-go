@@ -28,7 +28,7 @@ func buildCheckTargetInput(p *checkTargetParams) (string, error) {
 	return string(j), nil
 }
 
-func checkTargetHandler(request *http.Request) (*executor.Command, error) {
+func checkTargetCmd(request *http.Request) (*executor.Command, error) {
 	var params checkTargetParams
 
 	if err := json.NewDecoder(request.Body).Decode(&params); err != nil {
