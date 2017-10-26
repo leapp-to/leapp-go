@@ -20,7 +20,7 @@ func logExecutorError(ctx context.Context, r *executor.Result) {
 	}
 }
 
-// parseExecutorResult parses a *executor.Result and returns its stdout, and HTTP status code and and error, if any.
+// parseExecutorResult parses a *executor.Result and returns its stdout, a HTTP status code and an error, if any.
 func parseExecutorResult(r *executor.Result) (interface{}, int, error) {
 	if r.ExitCode != 0 {
 		msg := fmt.Sprintf("actor execution failed with %d", r.ExitCode)
@@ -97,7 +97,7 @@ func GetEndpoints() []EndpointEntry {
 		},
 		{
 			Method:      "GET",
-			Endpoint:    "/migrate-machine/results/{id}",
+			Endpoint:    "/migrate-machine/{id}",
 			HandlerFunc: respHandler(migrateMachineResult),
 		},
 		{
