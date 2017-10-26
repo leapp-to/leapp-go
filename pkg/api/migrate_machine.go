@@ -56,7 +56,7 @@ func migrateMachineStart(rw http.ResponseWriter, req *http.Request) (interface{}
 
 	actorInput, err := buildActorInput(&p)
 	if err != nil {
-		return nil, http.StatusBadRequest, NewApiError(err, errBadInput, "could not build actor's input")
+		return nil, http.StatusInternalServerError, NewApiError(err, errInternal, "could not build actor's input")
 	}
 
 	id := actorRunnerRegistry.Create("migrate-machine", actorInput)

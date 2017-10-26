@@ -10,14 +10,17 @@ import (
 	"github.com/leapp-to/leapp-go/pkg/executor"
 )
 
-var actorRunnerRegistry *ActorRunner
+// actorStreamParams is a registry of executing actors.
+var actorRunnerRegistry = NewActorRunner()
 
-func init() {
-	// Initialize only once
-	actorRunnerRegistry = NewActorRunner()
+// logExecutorError logs the stderr of on executor.Result if verbose mode is enabled.
+func logExecutorError(ctx context.Context, r *executor.Result) {
+	if ctx.Value(CKey("Verbose")).(bool) {
+		log.Printf("Actor stderr: %s\n", r.Stderr)
+	}
 }
 
-// parseExecutorResult parses a *executor.Result and returns the appropriate information.
+// parseExecutorResult parses a *executor.Result and returns its stdout, and HTTP status code and and error, if any.
 func parseExecutorResult(r *executor.Result) (interface{}, int, error) {
 	if r.ExitCode != 0 {
 		msg := fmt.Sprintf("actor execution failed with %d", r.ExitCode)
@@ -35,27 +38,16 @@ func parseExecutorResult(r *executor.Result) (interface{}, int, error) {
 	return stdout, http.StatusOK, nil
 }
 
-// logExecutorError logs the stderr of on executor.Result if verbose mode is enabled.
-func logExecutorError(ctx context.Context, r *executor.Result) {
-	if ctx.Value(CKey("Verbose")).(bool) {
-		log.Printf("Actor stderr: %s\n", r.Stderr)
-	}
-}
-
-func runSyncActor(ctx context.Context, name, input string) (interface{}, int, error) {
-	id := actorRunnerRegistry.Create(name, input)
-	s := actorRunnerRegistry.GetStatus(id, true)
+// checkTargetParams verifies if s is valid and return and HTTP status code and and appropriate error.
+func checkTaskStatus(s *ActorStatus) (int, error) {
 	if s == nil {
-		return nil, http.StatusNotFound, NewApiError(nil, errTaskNotFound, "task not found")
+		return http.StatusNotFound, NewApiError(nil, errTaskNotFound, "task not found")
 	}
 
 	if s.Result == nil {
-		return nil, http.StatusOK, NewApiError(nil, errTaskRunning, "task found, but there is no result yet")
+		return http.StatusOK, NewApiError(nil, errTaskRunning, "task found, but there is no result yet")
 	}
-
-	logExecutorError(ctx, s.Result)
-
-	return parseExecutorResult(s.Result)
+	return 0, nil
 }
 
 // respHandler is the final handler that builds the response to be sent to the clients.
@@ -105,7 +97,7 @@ func GetEndpoints() []EndpointEntry {
 		},
 		{
 			Method:      "GET",
-			Endpoint:    "/migrate-machine/status/{id}",
+			Endpoint:    "/migrate-machine/results/{id}",
 			HandlerFunc: respHandler(migrateMachineResult),
 		},
 		{

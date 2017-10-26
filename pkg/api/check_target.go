@@ -35,8 +35,19 @@ func checkTarget(rw http.ResponseWriter, req *http.Request) (interface{}, int, e
 
 	actorInput, err := buildCheckTargetInput(&params)
 	if err != nil {
-		return nil, http.StatusBadRequest, NewApiError(err, errBadInput, "could not build actor's input")
+		return nil, http.StatusInternalServerError, NewApiError(err, errInternal, "could not build actor's input")
 	}
 
-	return runSyncActor(req.Context(), "remote-target-check-group", string(actorInput))
+	id := actorRunnerRegistry.Create("remote-target-check-group", actorInput)
+
+	s := actorRunnerRegistry.GetStatus(id, true)
+	hs, err := checkTaskStatus(s)
+	if err != nil {
+		return nil, hs, NewApiError(err, errInternal, "could not build actor's input")
+	}
+
+	logExecutorError(req.Context(), s.Result)
+
+	return parseExecutorResult(s.Result)
+
 }

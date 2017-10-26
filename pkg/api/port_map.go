@@ -30,8 +30,18 @@ func portMap(rw http.ResponseWriter, req *http.Request) (interface{}, int, error
 
 	actorInput, err := json.Marshal(d)
 	if err != nil {
-		return nil, http.StatusBadRequest, NewApiError(err, errBadInput, "could not build actor's input")
+		return nil, http.StatusInternalServerError, NewApiError(err, errInternal, "could not build actor's input")
 	}
 
-	return runSyncActor(req.Context(), "port-mapping", string(actorInput))
+	id := actorRunnerRegistry.Create("port-mapping", string(actorInput))
+
+	s := actorRunnerRegistry.GetStatus(id, true)
+	hs, err := checkTaskStatus(s)
+	if err != nil {
+		return nil, hs, NewApiError(err, errInternal, "could not build actor's input")
+	}
+
+	logExecutorError(req.Context(), s.Result)
+
+	return parseExecutorResult(s.Result)
 }
