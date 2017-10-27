@@ -32,11 +32,11 @@ func parseExecutorResult(r *executor.Result) (interface{}, int, error) {
 
 	if r.ExitCode != 0 {
 		msg := fmt.Sprintf("actor execution failed with %d", r.ExitCode)
-		return nil, http.StatusOK, newAPIError(nil, errActorExecution, msg)
+		return nil, http.StatusInternalServerError, newAPIError(nil, errActorExecution, msg)
 	}
 
 	if r.Stdout == "" {
-		return nil, http.StatusOK, newAPIError(nil, errActorExecution, "actor didn't return any data")
+		return nil, http.StatusInternalServerError, newAPIError(nil, errActorExecution, "actor didn't return any data")
 	}
 
 	var stdout interface{}
