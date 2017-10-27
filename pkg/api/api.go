@@ -8,6 +8,7 @@ import (
 	"net/http"
 
 	"github.com/leapp-to/leapp-go/pkg/executor"
+	"github.com/pkg/errors"
 )
 
 // actorStreamParams is a registry of executing actors.
@@ -15,6 +16,9 @@ var actorRunnerRegistry = NewActorRunner()
 
 // logExecutorError logs the stderr of on executor.Result if verbose mode is enabled.
 func logExecutorError(ctx context.Context, r *executor.Result) {
+	if r == nil {
+		return
+	}
 	if ctx.Value(CKey("Verbose")).(bool) {
 		log.Printf("Actor stderr: %s\n", r.Stderr)
 	}
@@ -22,6 +26,10 @@ func logExecutorError(ctx context.Context, r *executor.Result) {
 
 // parseExecutorResult parses a *executor.Result and returns its stdout, a HTTP status code and an error, if any.
 func parseExecutorResult(r *executor.Result) (interface{}, int, error) {
+	if r == nil {
+		return nil, http.StatusInternalServerError, newAPIError(nil, errInternal, "empty executor result")
+	}
+
 	if r.ExitCode != 0 {
 		msg := fmt.Sprintf("actor execution failed with %d", r.ExitCode)
 		return nil, http.StatusOK, newAPIError(nil, errActorExecution, msg)
@@ -33,21 +41,21 @@ func parseExecutorResult(r *executor.Result) (interface{}, int, error) {
 
 	var stdout interface{}
 	if err := json.Unmarshal([]byte(r.Stdout), &stdout); err != nil {
-		return nil, http.StatusOK, newAPIError(err, errActorExecution, "could not decode actor output")
+		return nil, http.StatusInternalServerError, newAPIError(err, errActorExecution, "could not decode actor output")
 	}
 	return stdout, http.StatusOK, nil
 }
 
-// checkTargetParams verifies if s is valid and return and HTTP status code and and appropriate error.
-func checkTaskStatus(s *ActorStatus) (int, error) {
+// checkSyncTaskStatus verifies if s is valid and return and HTTP status code and and appropriate error.
+func checkSyncTaskStatus(s *ActorStatus) error {
 	if s == nil {
-		return http.StatusNotFound, newAPIError(nil, errTaskNotFound, "task not found")
+		return errors.New("could not find task in registry")
 	}
 
 	if s.Result == nil {
-		return http.StatusOK, newAPIError(nil, errTaskRunning, "task found, but there is no result yet")
+		return errors.New("task found, but there is no result")
 	}
-	return 0, nil
+	return nil
 }
 
 // respHandler is the final handler that builds the response to be sent to the clients.
