@@ -51,12 +51,12 @@ func buildActorInput(p *migrateParams) (string, error) {
 func migrateMachineStart(rw http.ResponseWriter, req *http.Request) (interface{}, int, error) {
 	var p migrateParams
 	if err := json.NewDecoder(req.Body).Decode(&p); err != nil {
-		return nil, http.StatusBadRequest, NewApiError(err, errBadInput, "could not decode data sent by client")
+		return nil, http.StatusBadRequest, newAPIError(err, errBadInput, "could not decode data sent by client")
 	}
 
 	actorInput, err := buildActorInput(&p)
 	if err != nil {
-		return nil, http.StatusInternalServerError, NewApiError(err, errInternal, "could not build actor's input")
+		return nil, http.StatusInternalServerError, newAPIError(err, errInternal, "could not build actor's input")
 	}
 
 	id := actorRunnerRegistry.Create("migrate-machine", actorInput)
@@ -67,16 +67,16 @@ func migrateMachineStart(rw http.ResponseWriter, req *http.Request) (interface{}
 func migrateMachineResult(rw http.ResponseWriter, req *http.Request) (interface{}, int, error) {
 	id, err := parseID(req)
 	if err != nil {
-		return nil, http.StatusBadRequest, NewApiError(err, errBadInput, "could not parse ID")
+		return nil, http.StatusBadRequest, newAPIError(err, errBadInput, "could not parse ID")
 	}
 
 	s := actorRunnerRegistry.GetStatus(id, false)
 	if s == nil {
-		return nil, http.StatusNotFound, NewApiError(nil, errTaskNotFound, "task not found")
+		return nil, http.StatusNotFound, newAPIError(nil, errTaskNotFound, "task not found")
 	}
 
 	if s.Result == nil {
-		return nil, http.StatusOK, NewApiError(nil, errTaskRunning, "task found, but there is no result yet")
+		return nil, http.StatusOK, newAPIError(nil, errTaskRunning, "task found, but there is no result yet")
 	}
 
 	logExecutorError(req.Context(), s.Result)

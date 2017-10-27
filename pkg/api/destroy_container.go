@@ -15,7 +15,7 @@ func destroyContainer(rw http.ResponseWriter, req *http.Request) (interface{}, i
 	var params destroyContainerParams
 
 	if err := json.NewDecoder(req.Body).Decode(&params); err != nil {
-		return nil, http.StatusBadRequest, NewApiError(err, errBadInput, "could not decode data sent by client")
+		return nil, http.StatusBadRequest, newAPIError(err, errBadInput, "could not decode data sent by client")
 	}
 
 	d := map[string]interface{}{
@@ -26,7 +26,7 @@ func destroyContainer(rw http.ResponseWriter, req *http.Request) (interface{}, i
 
 	actorInput, err := json.Marshal(d)
 	if err != nil {
-		return nil, http.StatusInternalServerError, NewApiError(err, errInternal, "could not build actor's input")
+		return nil, http.StatusInternalServerError, newAPIError(err, errInternal, "could not build actor's input")
 	}
 
 	id := actorRunnerRegistry.Create("destroy-container", string(actorInput))
@@ -34,7 +34,7 @@ func destroyContainer(rw http.ResponseWriter, req *http.Request) (interface{}, i
 	s := actorRunnerRegistry.GetStatus(id, true)
 	hs, err := checkTaskStatus(s)
 	if err != nil {
-		return nil, hs, NewApiError(err, errInternal, "could not build actor's input")
+		return nil, hs, newAPIError(err, errInternal, "could not build actor's input")
 	}
 
 	logExecutorError(req.Context(), s.Result)

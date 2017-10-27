@@ -55,8 +55,8 @@ func (e apiError) MarshalJSON() ([]byte, error) {
 	return json.Marshal(out)
 }
 
-// NewApiError returns a new apiError object.
-func NewApiError(e error, c int, m string) apiError {
+// newAPIError returns a new apiError object.
+func newAPIError(e error, c int, m string) apiError {
 	if c == 0 {
 		c = errInternal
 	}

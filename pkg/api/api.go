@@ -24,16 +24,16 @@ func logExecutorError(ctx context.Context, r *executor.Result) {
 func parseExecutorResult(r *executor.Result) (interface{}, int, error) {
 	if r.ExitCode != 0 {
 		msg := fmt.Sprintf("actor execution failed with %d", r.ExitCode)
-		return nil, http.StatusOK, NewApiError(nil, errActorExecution, msg)
+		return nil, http.StatusOK, newAPIError(nil, errActorExecution, msg)
 	}
 
 	if r.Stdout == "" {
-		return nil, http.StatusOK, NewApiError(nil, errActorExecution, "actor didn't return any data")
+		return nil, http.StatusOK, newAPIError(nil, errActorExecution, "actor didn't return any data")
 	}
 
 	var stdout interface{}
 	if err := json.Unmarshal([]byte(r.Stdout), &stdout); err != nil {
-		return nil, http.StatusOK, NewApiError(err, errActorExecution, "could not decode actor output")
+		return nil, http.StatusOK, newAPIError(err, errActorExecution, "could not decode actor output")
 	}
 	return stdout, http.StatusOK, nil
 }
@@ -41,11 +41,11 @@ func parseExecutorResult(r *executor.Result) (interface{}, int, error) {
 // checkTargetParams verifies if s is valid and return and HTTP status code and and appropriate error.
 func checkTaskStatus(s *ActorStatus) (int, error) {
 	if s == nil {
-		return http.StatusNotFound, NewApiError(nil, errTaskNotFound, "task not found")
+		return http.StatusNotFound, newAPIError(nil, errTaskNotFound, "task not found")
 	}
 
 	if s.Result == nil {
-		return http.StatusOK, NewApiError(nil, errTaskRunning, "task found, but there is no result yet")
+		return http.StatusOK, newAPIError(nil, errTaskRunning, "task found, but there is no result yet")
 	}
 	return 0, nil
 }

@@ -30,12 +30,12 @@ func checkTarget(rw http.ResponseWriter, req *http.Request) (interface{}, int, e
 	var params checkTargetParams
 
 	if err := json.NewDecoder(req.Body).Decode(&params); err != nil {
-		return nil, http.StatusBadRequest, NewApiError(err, errBadInput, "could not decode data sent by client")
+		return nil, http.StatusBadRequest, newAPIError(err, errBadInput, "could not decode data sent by client")
 	}
 
 	actorInput, err := buildCheckTargetInput(&params)
 	if err != nil {
-		return nil, http.StatusInternalServerError, NewApiError(err, errInternal, "could not build actor's input")
+		return nil, http.StatusInternalServerError, newAPIError(err, errInternal, "could not build actor's input")
 	}
 
 	id := actorRunnerRegistry.Create("remote-target-check-group", actorInput)
@@ -43,7 +43,7 @@ func checkTarget(rw http.ResponseWriter, req *http.Request) (interface{}, int, e
 	s := actorRunnerRegistry.GetStatus(id, true)
 	hs, err := checkTaskStatus(s)
 	if err != nil {
-		return nil, hs, NewApiError(err, errInternal, "could not build actor's input")
+		return nil, hs, newAPIError(err, errInternal, "could not build actor's input")
 	}
 
 	logExecutorError(req.Context(), s.Result)
