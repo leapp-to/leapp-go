@@ -27,9 +27,6 @@ func buildCheckTargetInput(p *checkTargetParams) (string, error) {
 }
 
 func checkTarget(rw http.ResponseWriter, req *http.Request) (interface{}, int, error) {
-	if err := checkSyncTaskStatus(nil); err != nil {
-		return nil, http.StatusInternalServerError, newAPIError(err, errInternal, "")
-	}
 	var params checkTargetParams
 
 	if err := json.NewDecoder(req.Body).Decode(&params); err != nil {

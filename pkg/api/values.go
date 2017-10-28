@@ -20,11 +20,9 @@ type respFunc func(http.ResponseWriter, *http.Request) (interface{}, int, error)
 const (
 	errInternal       = 1
 	errBadInput       = 2
-	errNotFound       = 4
-	errTaskNotFound   = 5
-	errTaskRunning    = 6
-	errTaskExecution  = 7
-	errActorExecution = 8
+	errTaskNotFound   = 3
+	errTaskRunning    = 4
+	errActorExecution = 5
 )
 
 // apiError represents an error to be returned to the client.
