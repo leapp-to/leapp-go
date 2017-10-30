@@ -35,6 +35,6 @@ func portMapHandler(request *http.Request) (*executor.Command, error) {
 		return nil, err
 	}
 
-	c := executor.New("port-mapping", string(actorInput))
+	c := executor.New("port-mapping-v2", string(actorInput))
 	return c, nil
 }
