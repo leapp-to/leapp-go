@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/leapp-to/leapp-go/pkg/executor"
+	"github.com/google/uuid"
+	"github.com/gorilla/mux"
+	"github.com/pkg/errors"
 )
 
 // migrateParams represents the data sent by the client.
@@ -46,22 +48,51 @@ func buildActorInput(p *migrateParams) (string, error) {
 	return string(j), nil
 }
 
-// migrateMachineHandler handles the /migrate-machine endpoint.
-func migrateMachineHandler(request *http.Request) (*executor.Command, error) {
-	var params migrateParams
-
-	if err := json.NewDecoder(request.Body).Decode(&params); err != nil {
-		return nil, err
+func migrateMachineStart(rw http.ResponseWriter, req *http.Request) (interface{}, int, error) {
+	var p migrateParams
+	if err := json.NewDecoder(req.Body).Decode(&p); err != nil {
+		return nil, http.StatusBadRequest, newAPIError(err, errBadInput, "could not decode data sent by client")
 	}
 
-	// Translate data sent by client into data that actor can read
-	actorInput, err := buildActorInput(&params)
+	actorInput, err := buildActorInput(&p)
+	if err != nil {
+		return nil, http.StatusInternalServerError, newAPIError(err, errInternal, "could not build actor's input")
+	}
+
+	id := actorRunnerRegistry.Create("migrate-machine", actorInput)
+
+	return map[string]*ActorRunnerID{"migrate-id": id}, http.StatusOK, nil
+}
+
+func migrateMachineResult(rw http.ResponseWriter, req *http.Request) (interface{}, int, error) {
+	id, err := parseID(req)
+	if err != nil {
+		return nil, http.StatusBadRequest, newAPIError(err, errBadInput, "could not parse ID")
+	}
+
+	s := actorRunnerRegistry.GetStatus(id, false)
+	if s == nil {
+		return nil, http.StatusNotFound, newAPIError(nil, errTaskNotFound, "task not found")
+	}
+
+	if s.Result == nil {
+		return nil, http.StatusOK, newAPIError(nil, errTaskRunning, "task found, but there is no result yet")
+	}
+
+	logExecutorError(req.Context(), s.Result)
+
+	return parseExecutorResult(s.Result)
+}
+
+func parseID(req *http.Request) (*ActorRunnerID, error) {
+	i, ok := mux.Vars(req)["id"]
+	if !ok {
+		return nil, errors.New("ID not found in request")
+	}
+
+	aid, err := uuid.Parse(i)
 	if err != nil {
 		return nil, err
 	}
-
-	// Creates an executor.Command that calls the correct actor passing the data to its stdin
-	c := executor.New("migrate-machine", actorInput)
-
-	return c, nil
+	return &ActorRunnerID{aid}, nil
 }

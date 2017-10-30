@@ -3,8 +3,6 @@ package api
 import (
 	"encoding/json"
 	"net/http"
-
-	"github.com/leapp-to/leapp-go/pkg/executor"
 )
 
 type destroyContainerParams struct {
@@ -13,11 +11,11 @@ type destroyContainerParams struct {
 	TargetUser    string `json:"target_user"`
 }
 
-func destroyContainerHandler(request *http.Request) (*executor.Command, error) {
+func destroyContainer(rw http.ResponseWriter, req *http.Request) (interface{}, int, error) {
 	var params destroyContainerParams
 
-	if err := json.NewDecoder(request.Body).Decode(&params); err != nil {
-		return nil, err
+	if err := json.NewDecoder(req.Body).Decode(&params); err != nil {
+		return nil, http.StatusBadRequest, newAPIError(err, errBadInput, "could not decode data sent by client")
 	}
 
 	d := map[string]interface{}{
@@ -28,9 +26,17 @@ func destroyContainerHandler(request *http.Request) (*executor.Command, error) {
 
 	actorInput, err := json.Marshal(d)
 	if err != nil {
-		return nil, err
+		return nil, http.StatusInternalServerError, newAPIError(err, errInternal, "could not build actor's input")
 	}
 
-	c := executor.New("destroy-container", string(actorInput))
-	return c, nil
+	id := actorRunnerRegistry.Create("destroy-container", string(actorInput))
+
+	s := actorRunnerRegistry.GetStatus(id, true)
+	if err := checkSyncTaskStatus(s); err != nil {
+		return nil, http.StatusInternalServerError, newAPIError(err, errInternal, "")
+	}
+
+	logExecutorError(req.Context(), s.Result)
+
+	return parseExecutorResult(s.Result)
 }
