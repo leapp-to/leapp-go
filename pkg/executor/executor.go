@@ -53,28 +53,22 @@ func (c *Command) Execute() (*Result, error) {
 	if c.StdoutFile == "" {
 		cmd.Stdout = &stdout
 	} else {
-		stdoutPipe, err := cmd.StdoutPipe()
-		if err != nil {
-			return nil, CommandExecutionError("Failed to create stdout pipe: " + err.Error())
-		}
 		f, err := os.Create(c.StdoutFile)
 		if err != nil {
 			return nil, CommandExecutionError("Failed to create stdout file: " + err.Error())
 		}
-		go io.Copy(f, io.TeeReader(stdoutPipe, &stdout))
+		defer f.Close()
+		cmd.Stdout = io.MultiWriter(&stdout, f)
 	}
 	if c.StderrFile == "" {
 		cmd.Stderr = &stderr
 	} else {
-		stderrPipe, err := cmd.StderrPipe()
-		if err != nil {
-			return nil, CommandExecutionError("Failed to create stderr pipe: " + err.Error())
-		}
 		f, err := os.Create(c.StderrFile)
 		if err != nil {
 			return nil, CommandExecutionError("Failed to create stderr file: " + err.Error())
 		}
-		go io.Copy(f, io.TeeReader(stderrPipe, &stderr))
+		defer f.Close()
+		cmd.Stderr = io.MultiWriter(&stderr, f)
 	}
 
 	code, err := runWithExitCode(cmd)
