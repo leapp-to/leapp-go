@@ -22,12 +22,12 @@ func portMapHandler(request *http.Request) (*executor.Command, error) {
 		return nil, err
 	}
 
-	d := map[string]interface{}{
-		"source_host":            ObjValue{params.SourceHost},
-		"target_host":            ObjValue{params.TargetHost},
-		"use_default_port_map":   ObjValue{params.DefaultPortMap},
-		"tcp_ports_user_mapping": params.TCPPorts,
-		"excluded_tcp_ports":     params.ExcludedTCPPorts,
+	d := map[string][]interface{}{
+		"source_host":            ChannelData(ObjValue{params.SourceHost}),
+		"target_host":            ChannelData(ObjValue{params.TargetHost}),
+		"use_default_port_map":   ChannelData(ObjValue{params.DefaultPortMap}),
+		"tcp_ports_user_mapping": ChannelData(params.TCPPorts),
+		"excluded_tcp_ports":     ChannelData(params.ExcludedTCPPorts),
 	}
 
 	actorInput, err := json.Marshal(d)

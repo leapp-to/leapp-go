@@ -20,10 +20,10 @@ func destroyContainerHandler(request *http.Request) (*executor.Command, error) {
 		return nil, err
 	}
 
-	d := map[string]interface{}{
-		"container_name":   ObjValue{params.ContainerName},
-		"target_host":      ObjValue{params.TargetHost},
-		"target_user_name": ObjValue{params.TargetUser},
+	d := map[string][]interface{}{
+		"container_name":   ChannelData(ObjValue{params.ContainerName}),
+		"target_host":      ChannelData(ObjValue{params.TargetHost}),
+		"target_user_name": ChannelData(ObjValue{params.TargetUser}),
 	}
 
 	actorInput, err := json.Marshal(d)

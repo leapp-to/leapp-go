@@ -2,6 +2,11 @@ package api
 
 import "encoding/json"
 
+//ChannelData wraps any number of values into a JSON array for channel data usage
+func ChannelData(data ...interface{}) (result []interface{}) {
+	return append(result, data...)
+}
+
 //ObjValue wraps any value into a JSON object with a key "value".
 type ObjValue struct {
 	Value interface{} `json:"value"`
