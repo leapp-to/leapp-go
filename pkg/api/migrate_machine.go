@@ -11,17 +11,18 @@ import (
 
 // migrateParams represents the data sent by the client.
 type migrateParams struct {
-	StartContainer      bool                `json:"start_container"`
-	ContainerName       string              `json:"container_name"`
-	ForceCreate         bool                `json:"force_create"`
 	SourceHost          string              `json:"source_host"`
 	SourceUser          string              `json:"source_user"`
 	TargetHost          string              `json:"target_host"`
 	TargetUser          string              `json:"target_user"`
-	ExcludePaths        []string            `json:"excluded_paths"`
-	UseDefaultPortMap   bool                `json:"use_default_port_map"`
-	TCPPortsUserMapping TCPPortsUserMapping `json:"tcp_ports_user_mapping"`
+	TCPPortsUserMapping TCPPortsUserMapping `json:"tcp_ports"`
 	ExcludedTCPPorts    ExcludedTCPPorts    `json:"excluded_tcp_ports"`
+	UseDefaultPortMap   bool                `json:"default_port_map"`
+	ContainerName       string              `json:"container_name"`
+	StartContainer      bool                `json:"start_container"`
+	ForceCreate         bool                `json:"force_create"`
+	ExcludePaths        []string            `json:"excluded_paths"`
+	Debug               bool                `json:"debug"`
 }
 
 // buildActorInput translates the data sent by the client into data that the actor can interpret.

@@ -6,11 +6,14 @@ import (
 )
 
 type portMapParams struct {
-	SourceHost       string              `json:"source_host"`
-	TargetHost       string              `json:"target_host"`
-	TCPPorts         TCPPortsUserMapping `json:"tcp_ports"`
-	ExcludedTCPPorts ExcludedTCPPorts    `json:"excluded_tcp_ports"`
-	DefaultPortMap   bool                `json:"default_port_map"`
+	SourceHost          string              `json:"source_host"`
+	SourceUser          string              `json:"source_user"`
+	TargetHost          string              `json:"target_host"`
+	TargetUser          string              `json:"target_user"`
+	TCPPortsUserMapping TCPPortsUserMapping `json:"tcp_ports"`
+	ExcludedTCPPorts    ExcludedTCPPorts    `json:"excluded_tcp_ports"`
+	UseDefaultPortMap   bool                `json:"default_port_map"`
+	Debug               bool                `json:"debug"`
 }
 
 func portMap(rw http.ResponseWriter, req *http.Request) (interface{}, int, error) {
@@ -23,8 +26,8 @@ func portMap(rw http.ResponseWriter, req *http.Request) (interface{}, int, error
 	d := map[string]interface{}{
 		"source_host":            ObjValue{params.SourceHost},
 		"target_host":            ObjValue{params.TargetHost},
-		"use_default_port_map":   ObjValue{params.DefaultPortMap},
-		"tcp_ports_user_mapping": params.TCPPorts,
+		"use_default_port_map":   ObjValue{params.UseDefaultPortMap},
+		"tcp_ports_user_mapping": params.TCPPortsUserMapping,
 		"excluded_tcp_ports":     params.ExcludedTCPPorts,
 	}
 

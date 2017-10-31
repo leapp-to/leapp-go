@@ -7,8 +7,9 @@ import (
 
 type checkTargetParams struct {
 	TargetHost string `json:"target_host"`
+	TargetUser string `json:"target_user"`
 	Status     bool   `json:"check_target_service_status"`
-	TargetUser string `json:"target_user_name"`
+	Debug      bool   `json:"debug"`
 }
 
 func buildCheckTargetInput(p *checkTargetParams) (string, error) {

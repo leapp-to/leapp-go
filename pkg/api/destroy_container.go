@@ -6,9 +6,10 @@ import (
 )
 
 type destroyContainerParams struct {
-	ContainerName string `json:"container_name"`
 	TargetHost    string `json:"target_host"`
 	TargetUser    string `json:"target_user"`
+	ContainerName string `json:"container_name"`
+	Debug         bool   `json:"debug"`
 }
 
 func destroyContainer(rw http.ResponseWriter, req *http.Request) (interface{}, int, error) {
