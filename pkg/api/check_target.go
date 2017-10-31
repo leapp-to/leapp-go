@@ -12,10 +12,10 @@ type checkTargetParams struct {
 }
 
 func buildCheckTargetInput(p *checkTargetParams) (string, error) {
-	data := map[string]interface{}{
-		"target_host":                 ObjValue{p.TargetHost},
-		"check_target_service_status": ObjValue{p.Status},
-		"target_user_name":            ObjValue{p.TargetUser},
+	data := map[string][]interface{}{
+		"target_host":                 ChannelData(ObjValue{p.TargetHost}),
+		"check_target_service_status": ChannelData(ObjValue{p.Status}),
+		"target_user_name":            ChannelData(ObjValue{p.TargetUser}),
 	}
 
 	j, err := json.Marshal(data)

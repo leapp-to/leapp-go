@@ -18,13 +18,13 @@ func portInspect(rw http.ResponseWriter, req *http.Request) (interface{}, int, e
 		return nil, http.StatusBadRequest, newAPIError(err, errBadInput, "could not decode data sent by client")
 	}
 
-	d := map[string]interface{}{
-		"host": ObjValue{params.TargetHost},
-		"scan_options": map[string]interface{}{
+	d := map[string][]interface{}{
+		"host": ChannelData(ObjValue{params.TargetHost}),
+		"scan_options": ChannelData(map[string]interface{}{
 			"shallow_scan": params.ShallowScan,
 			"port_range":   params.PortRange,
 			"force_nmap":   !params.ShallowScan,
-		},
+		}),
 	}
 
 	actorInput, err := json.Marshal(d)

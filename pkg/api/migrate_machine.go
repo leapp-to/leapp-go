@@ -26,18 +26,18 @@ type migrateParams struct {
 
 // buildActorInput translates the data sent by the client into data that the actor can interpret.
 func buildActorInput(p *migrateParams) (string, error) {
-	data := map[string]interface{}{
-		"start_container":        ObjValue{p.StartContainer},
-		"container_name":         ObjValue{p.ContainerName},
-		"force_create":           ObjValue{p.ForceCreate},
-		"source_host":            ObjValue{p.SourceHost},
-		"source_user_name":       ObjValue{p.SourceUser},
-		"target_host":            ObjValue{p.TargetHost},
-		"target_user_name":       ObjValue{p.TargetUser},
-		"excluded_paths":         ObjValue{p.ExcludePaths},
-		"use_default_port_map":   ObjValue{p.UseDefaultPortMap},
-		"tcp_ports_user_mapping": p.TCPPortsUserMapping,
-		"excluded_tcp_ports":     p.ExcludedTCPPorts,
+	data := map[string][]interface{}{
+		"start_container":        ChannelData(ObjValue{p.StartContainer}),
+		"container_name":         ChannelData(ObjValue{p.ContainerName}),
+		"force_create":           ChannelData(ObjValue{p.ForceCreate}),
+		"source_host":            ChannelData(ObjValue{p.SourceHost}),
+		"source_user_name":       ChannelData(ObjValue{p.SourceUser}),
+		"target_host":            ChannelData(ObjValue{p.TargetHost}),
+		"target_user_name":       ChannelData(ObjValue{p.TargetUser}),
+		"excluded_paths":         ChannelData(ObjValue{p.ExcludePaths}),
+		"use_default_port_map":   ChannelData(ObjValue{p.UseDefaultPortMap}),
+		"tcp_ports_user_mapping": ChannelData(p.TCPPortsUserMapping),
+		"excluded_tcp_ports":     ChannelData(p.ExcludedTCPPorts),
 	}
 
 	j, err := json.Marshal(data)
