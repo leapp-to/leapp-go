@@ -10,3 +10,10 @@ before_install:
 
 script:
   - make test-all
+
+after_success:
+  - bash update_documentation.sh
+
+env:
+  global:
+    secure: "CvzpBleQdo0UMRsbKUW1/PsljgJuoH3lq4e3WeRcjBpnioYIIhWl6GR3ETNEhhzqSWIU7qauUJinQfbcU7ubGBLaMEoqApB3oNz7jzEMRynX2DrZmAGNPWmDTy0Z5wfyIzCdhIJrLNrc761YPh0xkj2NSAyfelDb6xPQFbTfmN6j/cowhnWoFljZTcg+FfVnNKy6q7DPJyg0D87ghByDEHVHf/TH8Y8JwTwqMMK/Fg8GZM/VxRvkIfRfjY1HKVzxcYTd8pAYJi7CR/niVd57bocbBUjyTZRtNANkcGls+jAmxDFiHH+wR54naUxUACYmneEPfhkvJTzLU971472jm4j59DUUGaPflBah45eUXlo4YRnRSlQoKMA5GcZlfVOe608OibAvL8AWfVURoKhEZum6NI805ljrr8lyD1jRgu/HhTztF8FjER3eMoPAbpklO+A2aOe+MocGXiN3UbEkzamZhwTJ2emUH4wkPJAx0DXFQYjgzQEKaM1fvoif3RUJJwZSI/CLJBMV+jojRE+6AyaZTEsksl1p+7LEwKQ+WBCivLyWqktxD4J+yo8TW51n9WcKLiFiXer99TrkMjnOR57+EyVIGbK+SNZs/tayyfl0SE0s/Q7NBziP8xR4GgZVLgAqYC+pg/y8KTuNft8K+LRF+2sGIHlspC+mbn3vPsI="
