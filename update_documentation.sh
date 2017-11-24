@@ -6,16 +6,16 @@ request_update_doc() {
     git config user.name "Travis-CI"
     cp ../index.html.md shins/source/index.html.md
     cd shins
-    node $NVM_BIN/shins --minify
+    npm update
+    node ./shins.js --minify
     git add -A
-    cp $NVM_BIN/shins/pub/js/shins.js shins/pub/js/shins.js
-    git add shins/pub/js/shins.js
+    git add pub/js/shins.js
     git commit -m "rebuild pages at $commit"
     git push origin HEAD:master
 }
 
 install_npm_deps() {
-    npm install -g widdershins shins
+    npm install -g widdershins
 }
 
 convert_documentation() {
