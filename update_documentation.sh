@@ -22,18 +22,16 @@ convert_documentation() {
 
 #checks if it's merge action
 if [[ $TRAVIS_PULL_REQUEST == "false" && $TRAVIS_BRANCH == "master" ]]; then
-	echo "Update documentation has been triggered"
 	changed_files=`git diff --name-only HEAD^`
 	commit=$(git rev-parse --short HEAD)
 	# checks if merged PR contains any changes in api.yaml
 	if [[ $changed_files =~ .*api.yaml ]]; then
+	    echo "Update documentation has been triggered"
 		install_npm_deps
 		convert_documentation
 		request_update_doc
 		exit 0
-	else
-		exit 0
 	fi
-else
-	echo "Update documentation has not been triggered"
 fi
+
+echo "Update documentation has not been triggered"

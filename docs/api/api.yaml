@@ -1,4 +1,5 @@
 swagger: '2.0'
+
 info:
   description: "LeApp daemon API"
   version: "1.0"
