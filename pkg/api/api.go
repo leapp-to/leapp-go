@@ -129,6 +129,11 @@ func GetEndpoints() []EndpointEntry {
 			HandlerFunc: respHandler(destroyContainer),
 		},
 		{
+			Method:      "POST",
+			Endpoint:    "/check-system",
+			HandlerFunc: respHandler(checkSystemStart),
+		},
+		{
 			Method:      "GET",
 			Endpoint:    "/doc",
 			IsPrefix:    true,
