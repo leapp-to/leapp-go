@@ -134,6 +134,11 @@ func GetEndpoints() []EndpointEntry {
 			HandlerFunc: respHandler(checkSystemStart),
 		},
 		{
+			Method:      "POST",
+			Endpoint:    "/check-html-output",
+			HandlerFunc: respHandler(checkHTMLOutputStart),
+		},
+		{
 			Method:      "GET",
 			Endpoint:    "/doc",
 			IsPrefix:    true,
