@@ -6,7 +6,8 @@ import (
 )
 
 type checkEntry struct {
-	ID      string   `json:"check_id"`
+	Actor   string   `json:"check_actor"`
+	Action  string   `json:"check_action"`
 	Status  string   `json:"status"`
 	Summary string   `json:"summary"`
 	Params  []string `json:"params"`
