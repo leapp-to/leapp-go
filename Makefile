@@ -1,6 +1,8 @@
  BAD_FMT_FILES:= $(shell find . -iname '*.go' | grep -v /vendor/ | xargs gofmt -s -l)
  BAD_IMP_FILES:= $(shell goimports -l .)
 
+ EXEC_PATH=/usr/libexec/leapp
+
 .PHONY: fmt
 fmt:
 	@test -z $(BAD_FMT_FILES) || (echo -e "gofmt failed in the following file(s):\n$(BAD_FMT_FILES)" && exit 1)
@@ -33,6 +35,12 @@ all build:
 .PHONY: install-deps
 install-deps:
 	@go get -t -v ./...
+
+.PHONY: install
+install:
+	install -Dd $(EXEC_PATH) 
+	install -m0755 build/leapp-daemon $(EXEC_PATH) 
+	install -m0755 build/actor-stdout $(EXEC_PATH)
 
 .PHONY: clean
 clean:
