@@ -8,6 +8,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/leapp-to/leapp-go/pkg/actors"
 	"github.com/leapp-to/leapp-go/pkg/web"
 )
 
@@ -42,6 +43,9 @@ func Main(up chan<- struct{}) int {
 		Verbose: *flagVerbose,
 	}
 
+	actorAPI, _ := actors.NewActorAPIService(false)
+	defer actorAPI.Close()
+
 	// Start HTTP server
 	webHandler := web.New(&options)
 	log.Printf("Starting leapp-daemon at %s\n", options.ListenAddress)
@@ -59,6 +63,5 @@ func Main(up chan<- struct{}) int {
 		log.Printf("Error starting service: %v\n", err)
 		return 1
 	}
-
 	return 0
 }
