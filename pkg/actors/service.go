@@ -93,7 +93,7 @@ func NewActorAPIService(block bool) (service *ActorAPIService, err error) {
 		}{msgs})
 	}).Methods("POST")
 
-	socketPath := getenv("LEAPP_ACTOR_API", "/tmp/actor-api")
+	socketPath := getenv("LEAPP_ACTOR_API", "/var/run/leapp-actor-api.sock")
 	if _, err := os.Stat(socketPath); err == nil {
 		os.Remove(socketPath)
 	}
@@ -115,10 +115,12 @@ func NewActorAPIService(block bool) (service *ActorAPIService, err error) {
 
 // Close stops the audit service
 func (service *ActorAPIService) Close() error {
-	err := service.server.Close()
-	service.stop <- struct{}{}
-	<-service.stop
-	return err
+	if service != nil {
+		err := service.server.Close()
+		service.stop <- struct{}{}
+		return err
+	}
+	return nil
 }
 
 func (service *ActorAPIService) run() {

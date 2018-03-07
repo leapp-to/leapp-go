@@ -22,7 +22,8 @@ vet:
 .PHONY: test
 test:
 	@go clean
-	@go test ./...
+	@sqlite3 /tmp/actors.db < res/audit-layout.sql
+	@LEAPP_STORE_PATH=/tmp/actors.db LEAPP_ACTOR_API=/tmp/actor-api.sock go test ./...
 
 .PHONY: test-all
 test-all: fmt lint vet imports test

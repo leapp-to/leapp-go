@@ -10,6 +10,7 @@ import (
 
 	"github.com/leapp-to/leapp-go/pkg/actors"
 	"github.com/leapp-to/leapp-go/pkg/web"
+	_ "github.com/mattn/go-sqlite3"
 )
 
 var (
@@ -43,7 +44,11 @@ func Main(up chan<- struct{}) int {
 		Verbose: *flagVerbose,
 	}
 
-	actorAPI, _ := actors.NewActorAPIService(false)
+	actorAPI, err := actors.NewActorAPIService(false)
+	if err != nil {
+		log.Printf("Failed to start actor API service %s", err.Error())
+		return 1
+	}
 	defer actorAPI.Close()
 
 	// Start HTTP server
